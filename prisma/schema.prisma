@@ -14,20 +14,35 @@ datasource db {
 }
 
 model User {
-  id          Int           @id @default(autoincrement())
-  uid         String        @unique
-  email       String        @unique
-  username    String?       @unique
-  password    String
-  isAdmin     Boolean       @default(false) @map("is_admin")
-  memberships Membership[]
-  features    UserFeature[]
+  id            Int            @id @default(autoincrement())
+  uid           String         @unique
+  email         String         @unique
+  username      String?        @unique
+  password      String
+  isAdmin       Boolean        @default(false) @map("is_admin")
+  memberships   Membership[]
+  features      UserFeature[]
+  refreshTokens RefreshToken[]
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
   @@map("users")
+}
+
+model RefreshToken {
+  id         Int      @id @default(autoincrement())
+  uid        String   @unique
+  expiryDate DateTime @default(now()) @map("expiry_date")
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int      @map("user_id")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("refresh_tokens")
 }
 
 model Business {

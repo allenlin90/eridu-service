@@ -1,17 +1,24 @@
 import type { nanoid as nanoId } from 'nanoid';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 
 import { ProviderKeys } from '@/constants';
+import { ConfigKeys } from '@/config';
 import { UsersService } from '@/users/users.service';
+import { PrismaService } from '@/prisma/prisma.service';
 import { SignupDto } from './dtos/signup.dto';
-import { EncryptionService } from './encryption.service';
 import { LoginDto } from './dtos/login.dto';
+import { EncryptionService } from './encryption.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private encryptionService: EncryptionService,
+    private config: ConfigService,
+    private jwtService: JwtService,
+    private prisma: PrismaService,
     private usersService: UsersService,
+    private encryptionService: EncryptionService,
     @Inject(ProviderKeys.NANO_ID) private nanoid: typeof nanoId,
   ) {}
 
@@ -28,7 +35,25 @@ export class AuthService {
 
     await this.validatePassword(password, user.password);
 
-    this.generateTokens(user.uid);
+    return this.generateTokens(user.uid);
+  }
+
+  async generateRefreshToken(userUid: string) {
+    const expiryDate = new Date();
+    const expiresIn = this.config.get<number>(
+      ConfigKeys.REFRESH_TOKEN_EXPIRES_IN,
+    );
+    expiryDate.setDate(expiryDate.getDate() + expiresIn);
+
+    const refreshToken = await this.prisma.refreshToken.create({
+      data: {
+        user: { connect: { uid: userUid } },
+        uid: `refresh_${this.nanoid()}`,
+        expiryDate,
+      },
+    });
+
+    return refreshToken;
   }
 
   private async validatePassword(password: string, hashedPassword: string) {
@@ -65,10 +90,10 @@ export class AuthService {
     return this.generateTokens(user.uid);
   }
 
-  private async generateTokens(userUid: string) {
-    // TODO: generate access and refresh token
-    const accessToken = 'access_token';
-    const refreshToken = 'refresh_token';
+  private async generateTokens(userId: string) {
+    const accessToken = this.jwtService.sign({ userId });
+
+    const refreshToken = await this.generateRefreshToken(userId);
 
     return { accessToken, refreshToken };
   }
