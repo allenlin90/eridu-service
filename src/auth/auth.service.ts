@@ -9,6 +9,7 @@ import { UsersService } from '@/users/users.service';
 import { PrismaService } from '@/prisma/prisma.service';
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
+import { LogoutDto } from './dtos/logout.dto';
 import { EncryptionService } from './encryption.service';
 
 @Injectable()
@@ -36,6 +37,18 @@ export class AuthService {
     await this.validatePassword(password, user.password);
 
     return this.generateTokens(user.uid);
+  }
+
+  async logout(tokens: LogoutDto) {
+    // TODO: blacklist access token
+    const { refreshToken } = tokens;
+
+    // TODO: soft delete or log deleting action
+    const deletedRefreshToken = await this.prisma.refreshToken.delete({
+      where: { uid: refreshToken },
+    });
+
+    return deletedRefreshToken;
   }
 
   async generateRefreshToken(userUid: string) {

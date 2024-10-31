@@ -1,6 +1,17 @@
-import { Body, Controller, Post, UseInterceptors } from '@nestjs/common';
+import type { Request } from 'express';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  UnauthorizedException,
+  UseInterceptors,
+} from '@nestjs/common';
 
 import { AuthTokensInterceptor } from '@/interceptors/auth-tokens.interceptor';
+import { LogoutInterceptor } from '@/interceptors/logout.interceptor';
 
 import { AuthService } from './auth.service';
 import { SignupDto } from './dtos/signup.dto';
@@ -20,5 +31,20 @@ export class AuthController {
   @Post('login')
   async login(@Body() credentials: LoginDto) {
     return this.authService.login(credentials);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseInterceptors(LogoutInterceptor)
+  @Post('logout')
+  async logout(@Req() req: Request) {
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('invalid refresh token');
+    }
+
+    const accessToken = req.headers['authorization']?.split(' ')[1];
+
+    await this.authService.logout({ accessToken, refreshToken });
   }
 }
