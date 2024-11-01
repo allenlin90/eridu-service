@@ -22,7 +22,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @UseInterceptors(AuthTokensInterceptor)
-  @Post('/signup')
+  @Post('signup')
   signup(@Body() signupData: SignupDto) {
     return this.authService.signupLocal(signupData);
   }
