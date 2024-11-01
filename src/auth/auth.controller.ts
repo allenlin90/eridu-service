@@ -33,6 +33,18 @@ export class AuthController {
     return this.authService.login(credentials);
   }
 
+  @UseInterceptors(AuthTokensInterceptor)
+  @Post('refresh')
+  async refresh(@Req() req: Request) {
+    const { refreshToken } = req.cookies;
+
+    if (!refreshToken) {
+      new UnauthorizedException('invalid refresh token');
+    }
+
+    return this.authService.refreshToken(refreshToken);
+  }
+
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseInterceptors(LogoutInterceptor)
   @Post('logout')

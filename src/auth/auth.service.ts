@@ -1,8 +1,14 @@
 import type { nanoid as nanoId } from 'nanoid';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 
+import type { User } from '@prisma/client';
 import { ProviderKeys } from '@/constants';
 import { ConfigKeys } from '@/config';
 import { UsersService } from '@/users/users.service';
@@ -36,7 +42,24 @@ export class AuthService {
 
     await this.validatePassword(password, user.password);
 
-    return this.generateTokens(user.uid);
+    return this.generateTokens(user);
+  }
+
+  async refreshToken(refreshTokenUid: string) {
+    // TODO: invalidate used refresh token for safety
+    const refreshToken = await this.prisma.refreshToken.findUnique({
+      where: { uid: refreshTokenUid, expiryDate: { gte: new Date() } },
+      include: { user: true },
+    });
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('invalid refresh token');
+    }
+
+    const accessToken = this.generateAccessToken(refreshToken.user);
+
+    // should re-use generateTokens method
+    return { accessToken, refreshToken };
   }
 
   async logout(tokens: LogoutDto) {
@@ -51,7 +74,7 @@ export class AuthService {
     return deletedRefreshToken;
   }
 
-  async generateRefreshToken(userUid: string) {
+  async generateRefreshToken(user: User) {
     const expiryDate = new Date();
     const expiresIn = this.config.get<number>(
       ConfigKeys.REFRESH_TOKEN_EXPIRES_IN,
@@ -60,13 +83,17 @@ export class AuthService {
 
     const refreshToken = await this.prisma.refreshToken.create({
       data: {
-        user: { connect: { uid: userUid } },
+        userId: user.id,
         uid: `refresh_${this.nanoid()}`,
         expiryDate,
       },
     });
 
     return refreshToken;
+  }
+
+  private generateAccessToken(user: User) {
+    return this.jwtService.sign({ userId: user.uid });
   }
 
   private async validatePassword(password: string, hashedPassword: string) {
@@ -100,13 +127,13 @@ export class AuthService {
       ...objectData,
     });
 
-    return this.generateTokens(user.uid);
+    return this.generateTokens(user);
   }
 
-  private async generateTokens(userId: string) {
-    const accessToken = this.jwtService.sign({ userId });
+  private async generateTokens(user: User) {
+    const accessToken = this.generateAccessToken(user);
 
-    const refreshToken = await this.generateRefreshToken(userId);
+    const refreshToken = await this.generateRefreshToken(user);
 
     return { accessToken, refreshToken };
   }
