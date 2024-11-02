@@ -6,6 +6,8 @@ import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
 import { PrismaClientExceptionFilter } from '@/prisma-client-exception.filter';
 
+const PORT = parseInt(process.env.PORT, 10) || 3000;
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -20,6 +22,8 @@ async function bootstrap() {
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(PORT, () => {
+    console.log(`Application running at port ${PORT}`);
+  });
 }
 bootstrap();
