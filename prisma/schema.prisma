@@ -23,6 +23,7 @@ model User {
   memberships   Membership[]
   features      UserFeature[]
   refreshTokens RefreshToken[]
+  resetTokens   ResetToken[]
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -43,6 +44,20 @@ model RefreshToken {
   deletedAt DateTime? @map("deleted_at")
 
   @@map("refresh_tokens")
+}
+
+model ResetToken {
+  id         Int      @id @default(autoincrement())
+  uid        String   @unique
+  expiryDate DateTime @default(now()) @map("expiry_date")
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int      @map("user_id")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("reset_tokens")
 }
 
 model Business {

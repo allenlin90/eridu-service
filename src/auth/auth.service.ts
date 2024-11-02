@@ -9,14 +9,16 @@ import {
 } from '@nestjs/common';
 
 import type { User } from '@prisma/client';
-import { ProviderKeys } from '@/constants';
+import { Prefixes, ProviderKeys } from '@/constants';
 import { ConfigKeys } from '@/config';
 import { UsersService } from '@/users/users.service';
 import { PrismaService } from '@/prisma/prisma.service';
+import { AuthRepository } from './auth.repository';
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
 import { LogoutDto } from './dtos/logout.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { EncryptionService } from './encryption.service';
 
 @Injectable()
@@ -25,6 +27,7 @@ export class AuthService {
     private config: ConfigService,
     private jwtService: JwtService,
     private prisma: PrismaService,
+    private authRepository: AuthRepository,
     private usersService: UsersService,
     private encryptionService: EncryptionService,
     @Inject(ProviderKeys.NANO_ID) private nanoid: typeof nanoId,
@@ -96,6 +99,27 @@ export class AuthService {
     return updatedUser;
   }
 
+  async resetPassword({ token, password, confirmPassword }: ResetPasswordDto) {
+    if (password !== confirmPassword) {
+      throw new BadRequestException('passwords do not match');
+    }
+
+    const resetToken = await this.authRepository.findAndDeleteResetToken(token);
+
+    if (!resetToken) {
+      throw new BadRequestException('invalid reset token');
+    }
+
+    const hashedPassword = await this.hashPassword(password);
+
+    const user = await this.prisma.user.update({
+      where: { id: resetToken.userId },
+      data: { password: hashedPassword },
+    });
+
+    return user;
+  }
+
   async logout(tokens: LogoutDto) {
     // TODO: blacklist access token
     const { refreshToken } = tokens;
@@ -118,7 +142,7 @@ export class AuthService {
     const refreshToken = await this.prisma.refreshToken.create({
       data: {
         userId: user.id,
-        uid: `refresh_${this.nanoid()}`,
+        uid: `${Prefixes.REFRESH}_${this.nanoid()}`,
         expiryDate,
       },
     });

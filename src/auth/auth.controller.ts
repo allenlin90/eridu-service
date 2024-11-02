@@ -19,6 +19,7 @@ import { AuthService } from './auth.service';
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { Serialize } from '@/interceptors/serialize.interceptor';
 import { AuthGuard } from '@/guards/auth.guard';
 import { UserDto } from '@/users/dtos/user.dto';
@@ -72,5 +73,12 @@ export class AuthController {
   @Put('change-password')
   async changePassword(@Body() data: ChangePasswordDto, @Req() req: Request) {
     return this.authService.changePassword(req.userId, data);
+  }
+
+  @HttpCode(200)
+  @Serialize(UserDto)
+  @Post('reset-password')
+  async resetPassword(@Body() data: ResetPasswordDto) {
+    return this.authService.resetPassword(data);
   }
 }
