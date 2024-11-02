@@ -7,7 +7,6 @@ import {
   Post,
   Put,
   Req,
-  UnauthorizedException,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -23,6 +22,7 @@ import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { Serialize } from '@/interceptors/serialize.interceptor';
 import { AuthGuard } from '@/guards/auth.guard';
 import { UserDto } from '@/users/dtos/user.dto';
+import { RefreshTokenGuard } from '@/guards/refresh-token.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -42,23 +42,24 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @UseGuards(RefreshTokenGuard)
   @UseInterceptors(AuthTokensInterceptor)
   @Post('refresh')
   async refresh(@Req() req: Request) {
-    const refreshToken = this.getRefreshToken(req);
-
-    return this.authService.refreshToken(refreshToken);
+    return this.authService.refreshToken(req.refreshToken);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(RefreshTokenGuard)
   @UseInterceptors(LogoutInterceptor)
   @Post('logout')
   async logout(@Req() req: Request) {
-    const refreshToken = this.getRefreshToken(req);
-
     const accessToken = req.headers['authorization']?.split(' ')[1];
 
-    await this.authService.logout({ accessToken, refreshToken });
+    await this.authService.logout({
+      accessToken,
+      refreshToken: req.refreshToken,
+    });
   }
 
   @HttpCode(HttpStatus.OK)
@@ -74,15 +75,5 @@ export class AuthController {
   @Post('reset-password')
   async resetPassword(@Body() data: ResetPasswordDto) {
     return this.authService.resetPassword(data);
-  }
-
-  private getRefreshToken(req: Request) {
-    const refreshToken = req.cookies?.refreshToken;
-
-    if (!refreshToken) {
-      throw new UnauthorizedException('invalid refresh token');
-    }
-
-    return refreshToken;
   }
 }
