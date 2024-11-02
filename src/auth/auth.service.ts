@@ -12,7 +12,6 @@ import type { User } from '@prisma/client';
 import { Prefixes, ProviderKeys } from '@/constants';
 import { ConfigKeys } from '@/config';
 import { UsersService } from '@/users/users.service';
-import { PrismaService } from '@/prisma/prisma.service';
 import { AuthRepository } from './auth.repository';
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
@@ -26,7 +25,6 @@ export class AuthService {
   constructor(
     private config: ConfigService,
     private jwtService: JwtService,
-    private prisma: PrismaService,
     private authRepository: AuthRepository,
     private usersService: UsersService,
     private encryptionService: EncryptionService,
@@ -51,10 +49,9 @@ export class AuthService {
 
   async refreshToken(refreshTokenUid: string) {
     // TODO: invalidate used refresh token for safety
-    const refreshToken = await this.prisma.refreshToken.findUnique({
-      where: { uid: refreshTokenUid, expiryDate: { gte: new Date() } },
-      include: { user: true },
-    });
+    const refreshToken = await this.authRepository.findUniqueRefreshToken(
+      refreshTokenUid,
+    );
 
     if (!refreshToken) {
       throw new UnauthorizedException('invalid refresh token');
@@ -80,7 +77,7 @@ export class AuthService {
       );
     }
 
-    const user = await this.prisma.user.findUnique({ where: { uid: userId } });
+    const user = await this.usersService.findOne({ uid: userId });
 
     if (!user) {
       throw new UnauthorizedException('user not found');
@@ -91,7 +88,7 @@ export class AuthService {
     // update new password
     const hashedPassword = await this.hashPassword(newPassword);
 
-    const updatedUser = await this.prisma.user.update({
+    const updatedUser = await this.usersService.update({
       data: { password: hashedPassword },
       where: { id: user.id },
     });
@@ -112,9 +109,9 @@ export class AuthService {
 
     const hashedPassword = await this.hashPassword(password);
 
-    const user = await this.prisma.user.update({
-      where: { id: resetToken.userId },
+    const user = await this.usersService.update({
       data: { password: hashedPassword },
+      where: { id: resetToken.userId },
     });
 
     return user;
@@ -125,9 +122,8 @@ export class AuthService {
     const { refreshToken } = tokens;
 
     // TODO: soft delete or log deleting action
-    const deletedRefreshToken = await this.prisma.refreshToken.delete({
-      where: { uid: refreshToken },
-    });
+    const deletedRefreshToken =
+      await this.authRepository.findAndDeleteRefreshToken(refreshToken);
 
     return deletedRefreshToken;
   }
@@ -139,12 +135,10 @@ export class AuthService {
     );
     expiryDate.setDate(expiryDate.getDate() + expiresIn);
 
-    const refreshToken = await this.prisma.refreshToken.create({
-      data: {
-        userId: user.id,
-        uid: `${Prefixes.REFRESH}_${this.nanoid()}`,
-        expiryDate,
-      },
+    const refreshToken = await this.authRepository.createRefreshToken({
+      uid: `${Prefixes.REFRESH}_${this.nanoid()}`,
+      expiryDate,
+      user: { connect: { id: user.id } },
     });
 
     return refreshToken;

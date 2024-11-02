@@ -34,20 +34,18 @@ export class AuthController {
     return this.authService.signupLocal(signupData);
   }
 
+  @HttpCode(HttpStatus.OK)
   @UseInterceptors(AuthTokensInterceptor)
   @Post('login')
   async login(@Body() credentials: LoginDto) {
     return this.authService.login(credentials);
   }
 
+  @HttpCode(HttpStatus.OK)
   @UseInterceptors(AuthTokensInterceptor)
   @Post('refresh')
   async refresh(@Req() req: Request) {
-    const { refreshToken } = req.cookies;
-
-    if (!refreshToken) {
-      new UnauthorizedException('invalid refresh token');
-    }
+    const refreshToken = this.getRefreshToken(req);
 
     return this.authService.refreshToken(refreshToken);
   }
@@ -56,18 +54,14 @@ export class AuthController {
   @UseInterceptors(LogoutInterceptor)
   @Post('logout')
   async logout(@Req() req: Request) {
-    const refreshToken = req.cookies?.refreshToken;
-
-    if (!refreshToken) {
-      throw new UnauthorizedException('invalid refresh token');
-    }
+    const refreshToken = this.getRefreshToken(req);
 
     const accessToken = req.headers['authorization']?.split(' ')[1];
 
     await this.authService.logout({ accessToken, refreshToken });
   }
 
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @Serialize(UserDto)
   @UseGuards(AuthGuard)
   @Put('change-password')
@@ -75,10 +69,20 @@ export class AuthController {
     return this.authService.changePassword(req.userId, data);
   }
 
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @Serialize(UserDto)
   @Post('reset-password')
   async resetPassword(@Body() data: ResetPasswordDto) {
     return this.authService.resetPassword(data);
+  }
+
+  private getRefreshToken(req: Request) {
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('invalid refresh token');
+    }
+
+    return refreshToken;
   }
 }

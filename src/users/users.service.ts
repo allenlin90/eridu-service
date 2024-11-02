@@ -15,4 +15,14 @@ export class UsersService {
   create(data: Prisma.UserCreateInput): Promise<User> {
     return this.prisma.user.create({ data });
   }
+
+  update({
+    data,
+    where,
+  }: {
+    data: Prisma.UserUpdateInput;
+    where: Prisma.UserWhereUniqueInput;
+  }): Promise<User> {
+    return this.prisma.user.update({ data, where });
+  }
 }
