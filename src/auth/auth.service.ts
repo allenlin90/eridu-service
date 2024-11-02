@@ -125,6 +125,10 @@ export class AuthService {
     const deletedRefreshToken =
       await this.authRepository.findAndDeleteRefreshToken(refreshToken);
 
+    if (!deletedRefreshToken) {
+      throw new UnauthorizedException('invalid refresh token');
+    }
+
     return deletedRefreshToken;
   }
 
