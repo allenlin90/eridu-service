@@ -5,8 +5,10 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Put,
   Req,
   UnauthorizedException,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 
@@ -16,6 +18,10 @@ import { LogoutInterceptor } from '@/interceptors/logout.interceptor';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
+import { ChangePasswordDto } from './dtos/change-password.dto';
+import { Serialize } from '@/interceptors/serialize.interceptor';
+import { AuthGuard } from '@/guards/auth.guard';
+import { UserDto } from '@/users/dtos/user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -58,5 +64,13 @@ export class AuthController {
     const accessToken = req.headers['authorization']?.split(' ')[1];
 
     await this.authService.logout({ accessToken, refreshToken });
+  }
+
+  @HttpCode(200)
+  @Serialize(UserDto)
+  @UseGuards(AuthGuard)
+  @Put('change-password')
+  async changePassword(@Body() data: ChangePasswordDto, @Req() req: Request) {
+    return this.authService.changePassword(req.userId, data);
   }
 }

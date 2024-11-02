@@ -16,6 +16,7 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
 import { LogoutDto } from './dtos/logout.dto';
+import { ChangePasswordDto } from './dtos/change-password.dto';
 import { EncryptionService } from './encryption.service';
 
 @Injectable()
@@ -60,6 +61,39 @@ export class AuthService {
 
     // should re-use generateTokens method
     return { accessToken, refreshToken };
+  }
+
+  async changePassword(
+    userId: string,
+    { oldPassword, newPassword, confirmNewPassword }: ChangePasswordDto,
+  ) {
+    if (oldPassword === newPassword) {
+      throw new BadRequestException("your new password can't be the same");
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      throw new BadRequestException(
+        "new password and confirmation password don't match",
+      );
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { uid: userId } });
+
+    if (!user) {
+      throw new UnauthorizedException('user not found');
+    }
+
+    await this.validatePassword(oldPassword, user.password);
+
+    // update new password
+    const hashedPassword = await this.hashPassword(newPassword);
+
+    const updatedUser = await this.prisma.user.update({
+      data: { password: hashedPassword },
+      where: { id: user.id },
+    });
+
+    return updatedUser;
   }
 
   async logout(tokens: LogoutDto) {
