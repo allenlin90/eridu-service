@@ -132,6 +132,22 @@ export class AuthService {
     return deletedRefreshToken;
   }
 
+  async generateResetToken(userId: string) {
+    const expiryDate = new Date();
+    const expiresIn = this.config.get<number>(
+      ConfigKeys.RESET_TOKEN_EXPIRES_IN,
+    );
+    expiryDate.setHours(expiryDate.getHours() + expiresIn);
+
+    const resetToken = await this.authRepository.createResetToken({
+      uid: `${Prefixes.RESET}_${this.nanoid()}`,
+      expiryDate,
+      user: { connect: { uid: userId } },
+    });
+
+    return resetToken;
+  }
+
   async generateRefreshToken(user: User) {
     const expiryDate = new Date();
     const expiresIn = this.config.get<number>(

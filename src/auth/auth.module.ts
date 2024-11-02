@@ -17,5 +17,6 @@ import { ProviderKeys } from '@/constants';
   ],
   controllers: [AuthController],
   imports: [UsersModule],
+  exports: [AuthService],
 })
 export class AuthModule {}

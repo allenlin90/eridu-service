@@ -17,11 +17,18 @@ export class AuthRepository {
     });
   }
 
+  async createResetToken(
+    data: Prisma.ResetTokenCreateInput,
+  ): Promise<ResetToken> {
+    return this.prisma.resetToken.create({ data });
+  }
+
   async createRefreshToken(
     data: Prisma.RefreshTokenCreateInput,
   ): Promise<RefreshToken> {
     return this.prisma.refreshToken.create({ data });
   }
+
   @HandlePrismaNotFoundError()
   async findAndDeleteRefreshToken(
     refreshTokenUid: string,
