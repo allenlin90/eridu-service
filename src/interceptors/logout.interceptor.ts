@@ -5,12 +5,11 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { map, Observable } from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 
 @Injectable()
 export class LogoutInterceptor implements NestInterceptor {
-  constructor(private config: ConfigService) {}
+  constructor() {}
   intercept(
     ctx: ExecutionContext,
     next: CallHandler,
@@ -18,7 +17,7 @@ export class LogoutInterceptor implements NestInterceptor {
     const res = ctx.switchToHttp().getResponse();
 
     return next.handle().pipe(
-      map(() => {
+      finalize(() => {
         this.clearRefreshTokenCookie(res);
 
         return null;
