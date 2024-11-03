@@ -1,8 +1,8 @@
 import { Expose } from 'class-transformer';
 
-export class UserDto {
-  @Expose()
-  uid: string;
+export class UserResponseDto {
+  @Expose({ name: 'uid' })
+  id: string;
 
   @Expose()
   username: string;

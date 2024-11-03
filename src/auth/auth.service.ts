@@ -132,6 +132,10 @@ export class AuthService {
     return deletedRefreshToken;
   }
 
+  async findUser(userId: string) {
+    return this.usersService.findOne({ uid: userId });
+  }
+
   async generateResetToken(userId: string) {
     const expiryDate = new Date();
     const expiresIn = this.config.get<number>(

@@ -2,6 +2,7 @@ import type { Request } from 'express';
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -21,7 +22,7 @@ import { ChangePasswordDto } from './dtos/change-password.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { Serialize } from '@/interceptors/serialize.interceptor';
 import { AuthGuard } from '@/guards/auth.guard';
-import { UserDto } from '@/users/dtos/user.dto';
+import { UserResponseDto } from '@/users/dtos/user-response.dto';
 import { RefreshTokenGuard } from '@/guards/refresh-token.guard';
 
 @Controller('auth')
@@ -39,6 +40,13 @@ export class AuthController {
   @Post('login')
   async login(@Body() credentials: LoginDto) {
     return this.authService.login(credentials);
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard)
+  @Serialize(UserResponseDto)
+  async me(@Req() req: Request) {
+    return this.authService.findUser(req.userId);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -63,7 +71,7 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Serialize(UserDto)
+  @Serialize(UserResponseDto)
   @UseGuards(AuthGuard)
   @Put('change-password')
   async changePassword(@Body() data: ChangePasswordDto, @Req() req: Request) {
@@ -71,7 +79,7 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Serialize(UserDto)
+  @Serialize(UserResponseDto)
   @Post('reset-password')
   async resetPassword(@Body() data: ResetPasswordDto) {
     return this.authService.resetPassword(data);
