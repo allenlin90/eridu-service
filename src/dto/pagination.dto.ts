@@ -1,5 +1,5 @@
 import { Expose, Transform } from 'class-transformer';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class PaginationQueryDto {
   @IsOptional()
@@ -19,7 +19,11 @@ export class PaginationQueryDto {
 
   @IsOptional()
   @IsString()
-  searchValue: string;
+  search: string;
+
+  @IsOptional()
+  @IsObject()
+  filters: Record<string, any>;
 }
 
 export class PaginationDto {

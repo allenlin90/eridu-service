@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { Prisma, User } from '@prisma/client';
-import { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
-import { PaginationQueryDto } from '@/dto/pagination.dto';
+
+import { Entities, Tables } from '@/constants';
+import { PaginationSearchDecorator } from '@/decorators/paginatoin-search.decorator';
+import { UserSearchQueryDto } from './dtos/user-search-query.dto';
 
 @Injectable()
 export class UsersService {
@@ -14,25 +16,12 @@ export class UsersService {
     return this.prisma.user.findUnique({ where: userWhereUniqueInput });
   }
 
-  async searchUsers({
-    page = 1,
-    perPage = 10,
-    skip = 0,
-    searchValue,
-  }: PaginationQueryDto): Promise<PaginatorTypes.PaginatedResult<User>> {
-    const searchColumns: (keyof User)[] = ['email', 'username', 'uid'];
-    const searchPaginator = this.prisma.applySearchPaginator();
-
-    const users = await searchPaginator<User>(this.prisma, 'users', {
-      page,
-      perPage,
-      skip,
-      searchValue,
-      searchColumns,
-    });
-
-    return users;
-  }
+  @PaginationSearchDecorator<User, UserSearchQueryDto>(
+    Entities.USER,
+    Tables.USERS,
+    ['email', 'username', 'uid'],
+  )
+  async searchUsers(_query: UserSearchQueryDto) {}
 
   create(data: Prisma.UserCreateInput): Promise<User> {
     return this.prisma.user.create({ data });

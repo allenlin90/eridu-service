@@ -12,3 +12,11 @@ export enum Prefixes {
 export enum PrismaErrorCodes {
   NOT_FOUND = 'P2025',
 }
+
+export enum Entities {
+  USER = 'user',
+}
+
+export enum Tables {
+  USERS = 'users',
+}
