@@ -10,10 +10,14 @@ import { UserSearchQueryDto } from './dtos/user-search-query.dto';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  findOne(
+  async findOne(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
   ): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: userWhereUniqueInput });
+    const user = await this.prisma.user.findUnique({
+      where: userWhereUniqueInput,
+    });
+
+    return user;
   }
 
   @PaginationSearch<User, UserSearchQueryDto>(
