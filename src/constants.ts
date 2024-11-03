@@ -20,3 +20,5 @@ export enum Entities {
 export enum Tables {
   USERS = 'users',
 }
+
+export const USER_SEARCH_COLUMNS = ['email', 'username', 'uid'];

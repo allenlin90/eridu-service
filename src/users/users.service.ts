@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { Prisma, User } from '@prisma/client';
 
-import { Entities, Tables } from '@/constants';
-import { PaginationSearchDecorator } from '@/decorators/paginatoin-search.decorator';
+import { Entities, Tables, USER_SEARCH_COLUMNS } from '@/constants';
+import { PaginationSearch } from '@/decorators/paginatoin-search.decorator';
 import { UserSearchQueryDto } from './dtos/user-search-query.dto';
 
 @Injectable()
@@ -16,10 +16,10 @@ export class UsersService {
     return this.prisma.user.findUnique({ where: userWhereUniqueInput });
   }
 
-  @PaginationSearchDecorator<User, UserSearchQueryDto>(
+  @PaginationSearch<User, UserSearchQueryDto>(
     Entities.USER,
     Tables.USERS,
-    ['email', 'username', 'uid'],
+    USER_SEARCH_COLUMNS,
   )
   async searchUsers(_query: UserSearchQueryDto) {}
 

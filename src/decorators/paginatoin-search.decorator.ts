@@ -1,7 +1,7 @@
 import type { PaginationQueryDto } from '@/dto/pagination.dto';
 import type { PaginatorTypes } from '@nodeteam/nestjs-prisma-pagination';
 
-export function PaginationSearchDecorator<T, K extends PaginationQueryDto>(
+export function PaginationSearch<T, K extends PaginationQueryDto>(
   entityName: string,
   tableName: string,
   searchColumns: string[],
