@@ -1,10 +1,11 @@
-import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 
 import { AuthGuard } from '@/guards/auth.guard';
 import { AdminGuard } from '@/guards/admin.guard';
 import { Serialize } from '@/interceptors/serialize.interceptor';
+import { PaginationQueryDto } from '@/dto/pagination.dto';
 import { UsersService } from '@/users/users.service';
-import { UserResponseDto } from '@/users/dtos/user-response.dto';
+import { UserListDto } from '@/users/dtos/user-list.dto';
 import { ResetTokenResponseDto } from '../dtos/reset-token-response.dto';
 import { AdminService } from '../admin.service';
 
@@ -16,10 +17,10 @@ export class AdminUsersController {
     private usersService: UsersService,
   ) {}
 
-  @Serialize(UserResponseDto)
+  @Serialize(UserListDto)
   @Get('/')
-  async getUsers() {
-    return this.usersService.findAll();
+  async getUsers(@Query() query: PaginationQueryDto) {
+    return this.usersService.searchUsers(query);
   }
 
   @Serialize(ResetTokenResponseDto)

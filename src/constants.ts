@@ -1,5 +1,7 @@
 export enum ProviderKeys {
   NANO_ID = 'NANO_ID',
+  PRISMA_PAGINATOR = 'PRISMA_PAGINATOR',
+  PRISMA_SEARCH_PAGINATOR = 'PRISMA_SEARCH_PAGINATOR',
 }
 
 export enum Prefixes {
