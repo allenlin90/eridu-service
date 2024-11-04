@@ -13,11 +13,7 @@ export class UsersService {
   async findOne(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
   ): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({
-      where: userWhereUniqueInput,
-    });
-
-    return user;
+    return this.prisma.user.findUnique({ where: userWhereUniqueInput });
   }
 
   @PaginationSearch<User, UserSearchQueryDto>(
@@ -31,13 +27,17 @@ export class UsersService {
     return this.prisma.user.create({ data });
   }
 
-  update({
-    data,
-    where,
-  }: {
+  /**
+   * Updates a user with the specified data and unique identifier.
+   * @param {object} params
+   * @param {Prisma.UserUpdateInput} params.data - The data to update the user with.
+   * @param {Prisma.UserWhereUniqueInput} params.where - The unique identifier to locate the user.
+   * @returns {Promise<User>} - A promise that resolves to the updated user.
+   */
+  update(params: {
     data: Prisma.UserUpdateInput;
     where: Prisma.UserWhereUniqueInput;
   }): Promise<User> {
-    return this.prisma.user.update({ data, where });
+    return this.prisma.user.update(params);
   }
 }
