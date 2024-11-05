@@ -169,7 +169,15 @@ export class AuthService {
   }
 
   private generateAccessToken(user: User) {
-    return this.jwtService.sign({ userId: user.uid });
+    const iss = this.config.get<string>(ConfigKeys.JWT_ISSUER);
+
+    // TODO: add 'aud' to specify client
+    return this.jwtService.sign({
+      iss,
+      sub: user.uid,
+      email: user.email,
+      username: user.username,
+    });
   }
 
   private async validatePassword(password: string, hashedPassword: string) {

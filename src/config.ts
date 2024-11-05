@@ -5,6 +5,7 @@ export enum ConfigKeys {
   RESET_SERVICE_URL = 'RESET_SERVICE_URL',
   JWT_SECRET = 'jwt.secret',
   JWT_EXPIRES_IN = 'jwt.expiresIn',
+  JWT_ISSUER = 'jwt.issuer',
   REFRESH_TOKEN_EXPIRES_IN = 'refreshToken.expiresIn',
   RESET_TOKEN_EXPIRES_IN = 'resetToken.expiresIn',
 }
@@ -15,6 +16,7 @@ export default () => {
     NODE_ENV: process.env.NODE_ENV,
     IS_PRODUCTION: process.env.NODE_ENV === 'production',
     jwt: {
+      issuer: 'eridu',
       secret: process.env.JWT_SECRET,
       expiresIn: '15m',
     },
