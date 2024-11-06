@@ -5,6 +5,7 @@ export enum ProviderKeys {
 }
 
 export enum Prefixes {
+  USER = 'user',
   RESET = 'reset',
   REFRESH = 'refresh',
 }

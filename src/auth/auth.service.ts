@@ -1,15 +1,13 @@
-import type { nanoid as nanoId } from 'nanoid';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import {
   BadRequestException,
-  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 
 import type { User } from '@prisma/client';
-import { Prefixes, ProviderKeys } from '@/constants';
+import { Prefixes } from '@/constants';
 import { ConfigKeys } from '@/config';
 import { UsersService } from '@/users/users.service';
 import { AuthRepository } from './auth.repository';
@@ -21,6 +19,7 @@ import { LogoutDto } from './dtos/logout.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { GenerateTokensDto } from './dtos/generate-tokens.dto';
+import { NanoIdService } from '@/nano-id/nano-id.service';
 
 type UserId = User['id'];
 
@@ -32,7 +31,7 @@ export class AuthService {
     private authRepository: AuthRepository,
     private usersService: UsersService,
     private encryptionService: EncryptionService,
-    @Inject(ProviderKeys.NANO_ID) private nanoid: typeof nanoId,
+    private nanoIdService: NanoIdService,
   ) {}
 
   async signupLocal(signupDto: SignupDto) {
@@ -148,9 +147,11 @@ export class AuthService {
     );
     expiryDate.setHours(expiryDate.getHours() + expiresIn);
 
+    const uid = `${Prefixes.RESET}_${this.nanoIdService.generate()}`;
+
     const resetToken = await this.authRepository.createResetToken({
       data: {
-        uid: `${Prefixes.RESET}_${this.nanoid()}`,
+        uid,
         expiryDate,
         user: { connect: { uid: userId } },
       },
@@ -166,9 +167,11 @@ export class AuthService {
     );
     expiryDate.setDate(expiryDate.getDate() + expiresIn);
 
+    const uid = `${Prefixes.REFRESH}_${this.nanoIdService.generate()}`;
+
     const refreshToken = await this.authRepository.createRefreshToken({
       data: {
-        uid: `${Prefixes.REFRESH}_${this.nanoid()}`,
+        uid,
         expiryDate,
         user: { connect: { id: userId } },
       },
@@ -182,7 +185,14 @@ export class AuthService {
 
     const user = await this.usersService.findUnique({
       where: { id: userId },
+      include: { permissionsCache: true },
     });
+
+    let payload = user.permissionsCache?.permissions ?? null;
+
+    if (!payload) {
+      payload = await this.usersService.getUserPermissions({ userId });
+    }
 
     // TODO: add 'aud' to specify client
     return this.jwtService.sign({
@@ -190,6 +200,7 @@ export class AuthService {
       sub: user.uid,
       email: user.email,
       username: user.username,
+      payload,
     });
   }
 
@@ -216,10 +227,11 @@ export class AuthService {
     }
 
     const hashedPassword = await this.hashPassword(password);
+    const uid = `${Prefixes.USER}_${this.nanoIdService.generate()}`;
 
     const user = await this.usersService.create({
       data: {
-        uid: `user_${this.nanoid()}`,
+        uid,
         email,
         password: hashedPassword,
         ...objectData,
