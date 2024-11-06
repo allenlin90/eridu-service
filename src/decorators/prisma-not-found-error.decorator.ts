@@ -7,21 +7,25 @@ export function HandlePrismaNotFoundError() {
     _propertyKey: string,
     descriptor: PropertyDescriptor,
   ) {
-    const originalMethod = descriptor.value;
+    const originalGetter = descriptor.get;
 
-    descriptor.value = async function (...args: any[]) {
-      try {
-        return await originalMethod.apply(this, args);
-      } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-          if (error.code === PrismaErrorCodes.NOT_FOUND) {
+    descriptor.get = function () {
+      const originalMethod = originalGetter.call(this);
+
+      return async (...args: any[]) => {
+        try {
+          const result = await originalMethod.call(this.prisma, ...args);
+          return result;
+        } catch (error) {
+          if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === PrismaErrorCodes.NOT_FOUND
+          ) {
             return null;
           }
+          throw error;
         }
-        throw error;
-      }
+      };
     };
-
-    return descriptor;
   };
 }

@@ -16,7 +16,7 @@ export class AdminService {
   }
 
   async getUser(userId: string) {
-    return this.usersService.findOne({ uid: userId });
+    return this.usersService.findUnique({ where: { uid: userId } });
   }
 
   async generateResetToken(userId: string) {

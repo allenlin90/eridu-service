@@ -1,53 +1,31 @@
 import { Injectable } from '@nestjs/common';
 
-import { Prisma, RefreshToken, ResetToken } from '@prisma/client';
-import { PrismaService } from '@/prisma/prisma.service';
 import { HandlePrismaNotFoundError } from '@/decorators/prisma-not-found-error.decorator';
+import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class AuthRepository {
   constructor(private prisma: PrismaService) {}
 
-  async findUniqueRefreshToken(
-    refreshTokenUid: string,
-  ): Promise<Prisma.RefreshTokenGetPayload<{ include: { user: true } }>> {
-    return this.prisma.refreshToken.findUnique({
-      where: { uid: refreshTokenUid, expiryDate: { gte: new Date() } },
-      include: { user: true },
-    });
+  get findUniqueRefreshToken() {
+    return this.prisma.refreshToken.findUnique;
   }
 
-  async createResetToken(
-    data: Prisma.ResetTokenCreateInput,
-  ): Promise<ResetToken> {
-    return this.prisma.resetToken.create({ data });
+  get createResetToken() {
+    return this.prisma.resetToken.create;
   }
 
-  async createRefreshToken(
-    data: Prisma.RefreshTokenCreateInput,
-  ): Promise<RefreshToken> {
-    return this.prisma.refreshToken.create({ data });
+  get createRefreshToken() {
+    return this.prisma.refreshToken.create;
   }
 
   @HandlePrismaNotFoundError()
-  async findAndDeleteRefreshToken(
-    refreshTokenUid: string,
-  ): Promise<RefreshToken | null> {
-    const resetToken = await this.prisma.refreshToken.delete({
-      where: { uid: refreshTokenUid, expiryDate: { gte: new Date() } },
-    });
-
-    return resetToken;
+  get deleteRefreshToken() {
+    return this.prisma.refreshToken.delete;
   }
 
   @HandlePrismaNotFoundError()
-  async findAndDeleteResetToken(
-    resetTokenUid: string,
-  ): Promise<ResetToken | null> {
-    const resetToken = await this.prisma.resetToken.delete({
-      where: { uid: resetTokenUid, expiryDate: { gte: new Date() } },
-    });
-
-    return resetToken;
+  get deleteResetToken() {
+    return this.prisma.resetToken.delete;
   }
 }

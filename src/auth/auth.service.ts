@@ -40,7 +40,7 @@ export class AuthService {
   }
 
   async login({ email, password }: LoginDto) {
-    const user = await this.usersService.findOne({ email });
+    const user = await this.usersService.findUnique({ where: { email } });
 
     if (!user) {
       throw new BadRequestException('invalid credentials');
@@ -53,15 +53,16 @@ export class AuthService {
 
   async refreshToken(refreshTokenUid: string) {
     // TODO: invalidate used refresh token for safety
-    const refreshToken = await this.authRepository.findUniqueRefreshToken(
-      refreshTokenUid,
-    );
+    const now = new Date();
+    const refreshToken = await this.authRepository.findUniqueRefreshToken({
+      where: { uid: refreshTokenUid, expiryDate: { gte: now } },
+    });
 
     if (!refreshToken) {
       throw new UnauthorizedException('invalid refresh token');
     }
 
-    return this.generateTokens({ userId: refreshToken.user.id });
+    return this.generateTokens({ userId: refreshToken.userId });
   }
 
   async changePassword(
@@ -78,7 +79,7 @@ export class AuthService {
       );
     }
 
-    const user = await this.usersService.findOne({ uid: userId });
+    const user = await this.usersService.findUnique({ where: { uid: userId } });
 
     if (!user) {
       throw new UnauthorizedException('user not found');
@@ -102,7 +103,9 @@ export class AuthService {
       throw new BadRequestException('passwords do not match');
     }
 
-    const resetToken = await this.authRepository.findAndDeleteResetToken(token);
+    const resetToken = await this.authRepository.deleteResetToken({
+      where: { uid: token, expiryDate: { gte: new Date() } },
+    });
 
     if (!resetToken) {
       throw new BadRequestException('invalid reset token');
@@ -123,8 +126,9 @@ export class AuthService {
     const { refreshToken } = tokens;
 
     // TODO: soft delete or log deleting action
-    const deletedRefreshToken =
-      await this.authRepository.findAndDeleteRefreshToken(refreshToken);
+    const deletedRefreshToken = await this.authRepository.deleteRefreshToken({
+      where: { uid: refreshToken },
+    });
 
     if (!deletedRefreshToken) {
       throw new UnauthorizedException('invalid refresh token');
@@ -134,7 +138,7 @@ export class AuthService {
   }
 
   async findUser(userId: string) {
-    return this.usersService.findOne({ uid: userId });
+    return this.usersService.findUnique({ where: { uid: userId } });
   }
 
   async generateResetToken(userId: string) {
@@ -145,9 +149,11 @@ export class AuthService {
     expiryDate.setHours(expiryDate.getHours() + expiresIn);
 
     const resetToken = await this.authRepository.createResetToken({
-      uid: `${Prefixes.RESET}_${this.nanoid()}`,
-      expiryDate,
-      user: { connect: { uid: userId } },
+      data: {
+        uid: `${Prefixes.RESET}_${this.nanoid()}`,
+        expiryDate,
+        user: { connect: { uid: userId } },
+      },
     });
 
     return resetToken;
@@ -161,9 +167,11 @@ export class AuthService {
     expiryDate.setDate(expiryDate.getDate() + expiresIn);
 
     const refreshToken = await this.authRepository.createRefreshToken({
-      uid: `${Prefixes.REFRESH}_${this.nanoid()}`,
-      expiryDate,
-      user: { connect: { id: userId } },
+      data: {
+        uid: `${Prefixes.REFRESH}_${this.nanoid()}`,
+        expiryDate,
+        user: { connect: { id: userId } },
+      },
     });
 
     return refreshToken;
@@ -172,7 +180,9 @@ export class AuthService {
   private async generateAccessToken(userId: UserId) {
     const iss = this.config.get<string>(ConfigKeys.JWT_ISSUER);
 
-    const user = await this.usersService.findOne({ id: userId });
+    const user = await this.usersService.findUnique({
+      where: { id: userId },
+    });
 
     // TODO: add 'aud' to specify client
     return this.jwtService.sign({
@@ -199,7 +209,7 @@ export class AuthService {
   }
 
   private async signupUser({ email, password, ...objectData }: SignupDto) {
-    const emailInUse = await this.usersService.findOne({ email });
+    const emailInUse = await this.usersService.findUnique({ where: { email } });
 
     if (emailInUse) {
       throw new BadRequestException('user already exists');
@@ -208,10 +218,12 @@ export class AuthService {
     const hashedPassword = await this.hashPassword(password);
 
     const user = await this.usersService.create({
-      uid: `user_${this.nanoid()}`,
-      email,
-      password: hashedPassword,
-      ...objectData,
+      data: {
+        uid: `user_${this.nanoid()}`,
+        email,
+        password: hashedPassword,
+        ...objectData,
+      },
     });
 
     return this.generateTokens({ userId: user.id });

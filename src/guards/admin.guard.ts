@@ -21,7 +21,9 @@ export class AdminGuard implements CanActivate {
     }
 
     // TODO: optimize this to avoid database query and balance performance and security
-    const user = await this.userService.findOne({ uid: request.userId });
+    const user = await this.userService.findUnique({
+      where: { uid: request.userId },
+    });
 
     if (!user) {
       throw new ForbiddenException('invalid user');
