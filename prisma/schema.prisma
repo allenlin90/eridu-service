@@ -14,23 +14,38 @@ datasource db {
 }
 
 model User {
-  id               Int            @id @default(autoincrement())
-  uid              String         @unique
-  email            String         @unique
-  username         String?        @unique
+  id               Int               @id @default(autoincrement())
+  uid              String            @unique
+  email            String            @unique
+  username         String?           @unique
   password         String
-  isAdmin          Boolean        @default(false) @map("is_admin")
-  isEmailConfirmed Boolean        @default(false) @map("is_email_confirmed")
+  isAdmin          Boolean           @default(false) @map("is_admin")
+  isEmailConfirmed Boolean           @default(false) @map("is_email_confirmed")
   memberships      Membership[]
   features         UserFeature[]
   refreshTokens    RefreshToken[]
   resetTokens      ResetToken[]
+  permissionsCache PermissionsCache?
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
   @@map("users")
+}
+
+model PermissionsCache {
+  id          Int    @id @default(autoincrement())
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int    @unique @map("user_id")
+  permissions Json
+  version     String @unique
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("permissions_cache")
 }
 
 model RefreshToken {
