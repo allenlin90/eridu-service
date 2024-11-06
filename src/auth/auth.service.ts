@@ -13,12 +13,16 @@ import { Prefixes, ProviderKeys } from '@/constants';
 import { ConfigKeys } from '@/config';
 import { UsersService } from '@/users/users.service';
 import { AuthRepository } from './auth.repository';
+import { EncryptionService } from './encryption.service';
+
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
 import { LogoutDto } from './dtos/logout.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
-import { EncryptionService } from './encryption.service';
+import { GenerateTokensDto } from './dtos/generate-tokens.dto';
+
+type UserId = User['id'];
 
 @Injectable()
 export class AuthService {
@@ -44,7 +48,7 @@ export class AuthService {
 
     await this.validatePassword(password, user.password);
 
-    return this.generateTokens(user);
+    return this.generateTokens({ userId: user.id });
   }
 
   async refreshToken(refreshTokenUid: string) {
@@ -57,10 +61,7 @@ export class AuthService {
       throw new UnauthorizedException('invalid refresh token');
     }
 
-    const accessToken = this.generateAccessToken(refreshToken.user);
-
-    // should re-use generateTokens method
-    return { accessToken, refreshToken };
+    return this.generateTokens({ userId: refreshToken.user.id });
   }
 
   async changePassword(
@@ -152,7 +153,7 @@ export class AuthService {
     return resetToken;
   }
 
-  async generateRefreshToken(user: User) {
+  private async generateRefreshToken(userId: UserId) {
     const expiryDate = new Date();
     const expiresIn = this.config.get<number>(
       ConfigKeys.REFRESH_TOKEN_EXPIRES_IN,
@@ -162,14 +163,16 @@ export class AuthService {
     const refreshToken = await this.authRepository.createRefreshToken({
       uid: `${Prefixes.REFRESH}_${this.nanoid()}`,
       expiryDate,
-      user: { connect: { id: user.id } },
+      user: { connect: { id: userId } },
     });
 
     return refreshToken;
   }
 
-  private generateAccessToken(user: User) {
+  private async generateAccessToken(userId: UserId) {
     const iss = this.config.get<string>(ConfigKeys.JWT_ISSUER);
+
+    const user = await this.usersService.findOne({ id: userId });
 
     // TODO: add 'aud' to specify client
     return this.jwtService.sign({
@@ -211,14 +214,32 @@ export class AuthService {
       ...objectData,
     });
 
-    return this.generateTokens(user);
+    return this.generateTokens({ userId: user.id });
   }
 
-  private async generateTokens(user: User) {
-    const accessToken = this.generateAccessToken(user);
+  private async generateTokens({ userId, refreshToken }: GenerateTokensDto) {
+    const accessToken = await this.generateAccessToken(userId);
 
-    const refreshToken = await this.generateRefreshToken(user);
+    if (
+      refreshToken &&
+      this.shouldCreateRefreshToken(refreshToken.expiryDate)
+    ) {
+      return { accessToken, refreshToken };
+    }
 
-    return { accessToken, refreshToken };
+    const newRefreshToken = await this.generateRefreshToken(userId);
+
+    return { accessToken, refreshToken: newRefreshToken };
+  }
+
+  private shouldCreateRefreshToken(expiryDate: Date) {
+    const bufferTime = this.config.get<number>(
+      ConfigKeys.REFRESH_TOKEN_BUFFER_TIME,
+    );
+
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + bufferTime);
+
+    return expiryDate > now;
   }
 }
