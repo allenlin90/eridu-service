@@ -5,7 +5,7 @@ import { UsersService } from '@/users/users.service';
 import { UserSearchQueryDto } from '@/users/dtos/user-search-query.dto';
 
 @Injectable()
-export class AdminService {
+export class AdminUsersService {
   constructor(
     private authService: AuthService,
     private usersService: UsersService,
