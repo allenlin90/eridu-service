@@ -1,12 +1,16 @@
-import { Type } from 'class-transformer';
-import { IsNumber, IsOptional } from 'class-validator';
-import { RefreshToken } from 'prisma/generated/models';
+import type { RefreshToken } from '@prisma/client';
+import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
+// TODO: enforce data and model validation
 export class GenerateTokensDto {
   @IsNumber()
   userId: number;
 
-  @Type(() => RefreshToken)
+  @IsObject()
   @IsOptional()
   refreshToken?: RefreshToken;
+
+  @IsString()
+  @IsOptional()
+  permissionVersion?: string;
 }

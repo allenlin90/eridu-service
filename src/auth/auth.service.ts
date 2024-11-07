@@ -4,14 +4,15 @@ import {
   BadRequestException,
   Injectable,
   UnauthorizedException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 
-import type { User } from '@prisma/client';
 import { Prefixes } from '@/constants';
 import { ConfigKeys } from '@/config';
 import { UsersService } from '@/users/users.service';
-import { AuthRepository } from './auth.repository';
+import { NanoIdService } from '@/nano-id/nano-id.service';
 import { EncryptionService } from './encryption.service';
+import { AuthRepository } from './auth.repository';
 
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
@@ -19,9 +20,8 @@ import { LogoutDto } from './dtos/logout.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { GenerateTokensDto } from './dtos/generate-tokens.dto';
-import { NanoIdService } from '@/nano-id/nano-id.service';
 
-type UserId = User['id'];
+import { UserId } from './interfaces';
 
 @Injectable()
 export class AuthService {
@@ -61,7 +61,7 @@ export class AuthService {
       throw new UnauthorizedException('invalid refresh token');
     }
 
-    return this.generateTokens({ userId: refreshToken.userId });
+    return this.generateTokens({ userId: refreshToken.userId, refreshToken });
   }
 
   async changePassword(
@@ -188,19 +188,20 @@ export class AuthService {
       include: { permissionsCache: true },
     });
 
-    let payload = user.permissionsCache?.permissions ?? null;
+    let payload = user.permissionsCache ?? null;
 
     if (!payload) {
-      payload = await this.usersService.getUserPermissions({ userId });
+      payload = await this.usersService.createUserPermissionsCache({ userId });
     }
 
-    // TODO: add 'aud' to specify client
+    // TODO: add 'aud' to specify client e.g. client app id
     return this.jwtService.sign({
       iss,
       sub: user.uid,
       email: user.email,
       username: user.username,
-      payload,
+      payload: payload.permissions,
+      ver: payload.version,
     });
   }
 
@@ -242,28 +243,37 @@ export class AuthService {
   }
 
   private async generateTokens({ userId, refreshToken }: GenerateTokensDto) {
+    let newRefreshToken = refreshToken;
+
+    if (refreshToken && userId !== refreshToken?.userId) {
+      throw new UnprocessableEntityException('invalid refresh token');
+    }
+
     const accessToken = await this.generateAccessToken(userId);
 
     if (
-      refreshToken &&
-      this.shouldCreateRefreshToken(refreshToken.expiryDate)
+      !refreshToken ||
+      this.shouldCreateRefreshToken(refreshToken?.expiryDate)
     ) {
-      return { accessToken, refreshToken };
+      newRefreshToken = await this.generateRefreshToken(userId);
     }
-
-    const newRefreshToken = await this.generateRefreshToken(userId);
 
     return { accessToken, refreshToken: newRefreshToken };
   }
 
-  private shouldCreateRefreshToken(expiryDate: Date) {
+  private shouldCreateRefreshToken(expiryDate?: Date) {
+    if (!expiryDate) {
+      return true;
+    }
+
     const bufferTime = this.config.get<number>(
       ConfigKeys.REFRESH_TOKEN_BUFFER_TIME,
     );
 
     const now = new Date();
+
     now.setMinutes(now.getMinutes() + bufferTime);
 
-    return expiryDate > now;
+    return now >= expiryDate;
   }
 }
