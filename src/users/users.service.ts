@@ -93,25 +93,11 @@ export class UsersService {
     return { user, memberships, roles, teams, businesses };
   }
 
-  generateUserPermissions({
-    user,
-    roles,
-    memberships,
-    teams,
-    businesses,
-  }: UserPermissionsPayloadDto): UserPermissions {
-    if (
-      !user ||
-      !roles.length ||
-      !memberships.length ||
-      !teams.length ||
-      !businesses.length
-    ) {
-      // TODO: move argument validation to DTO
-      throw new UnprocessableEntityException(
-        'cannot generate user permissions',
-      );
-    }
+  generateUserPermissions(args: UserPermissionsPayloadDto): UserPermissions {
+    // TODO: move argument validation to DTO
+    this.validateUserPermissionsPayload(args);
+
+    const { user, roles, memberships, teams, businesses } = args;
 
     const rolesObj: Record<Role['id'], Role> = roles.reduce((store, role) => {
       store[role.id] = role;
@@ -120,11 +106,11 @@ export class UsersService {
 
     const permissions = teams.reduce((store, team) => {
       const business = businesses.find((b) => b.id === team.businessId);
+
       const scope = memberships.reduce((store, membership) => {
         if (membership.teamId === team.id) {
           return store.concat(rolesObj[membership.roleId].name);
         }
-
         return store;
       }, []);
 
@@ -141,5 +127,25 @@ export class UsersService {
     }, {});
 
     return permissions;
+  }
+
+  private validateUserPermissionsPayload({
+    user,
+    roles,
+    memberships,
+    teams,
+    businesses,
+  }: UserPermissionsPayloadDto) {
+    if (
+      !user ||
+      !roles.length ||
+      !memberships.length ||
+      !teams.length ||
+      !businesses.length
+    ) {
+      throw new UnprocessableEntityException(
+        'cannot generate user permissions',
+      );
+    }
   }
 }
