@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AdminModule } from './admin/admin.module';
 import { NanoIdModule } from './nano-id/nano-id.module';
+import { BusinessesModule } from './businesses/businesses.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { NanoIdModule } from './nano-id/nano-id.module';
     UsersModule,
     AdminModule,
     NanoIdModule,
+    BusinessesModule,
   ],
   controllers: [AppController],
 })
