@@ -6,6 +6,7 @@ export enum ProviderKeys {
 
 export enum Prefixes {
   BUSINESS = 'biz',
+  ERIFY = 'erify',
   USER = 'user',
   RESET = 'reset',
   REFRESH = 'refresh',
