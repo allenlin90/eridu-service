@@ -1,10 +1,10 @@
 @url = http://localhost:3000
 @user_email = {{$dotenv TEST_USER_EMAIL}}
 @user_password = {{$dotenv TEST_USER_PASSWORD}}
-@business_uid = erify
+@business_uid = 
 @business_name = 
 @team_uid = 
-@team_name =
+@team_name = 
 
 // user login
 // @name login
@@ -47,6 +47,11 @@ Content-Type: application/json
 
 ###
 @business_uid = {{create_business.response.body.id}}
+
+###
+GET {{url}}/admin/teams
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
 
 ###
 // create a team under a business
