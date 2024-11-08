@@ -11,6 +11,7 @@ export enum Prefixes {
   RESET = 'reset',
   REFRESH = 'refresh',
   TEAM = 'team',
+  MEMBERSHIP = 'membership',
 }
 
 export enum PrismaErrorCodes {

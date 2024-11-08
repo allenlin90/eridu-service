@@ -4,8 +4,8 @@ import { AuthGuard } from '@/guards/auth.guard';
 import { AdminGuard } from '@/guards/admin.guard';
 import { Serialize } from '@/interceptors/serialize.interceptor';
 import { TeamSearchQueryDto } from '@/teams/dtos/team-search-query.dto';
-import { AdminTeamsService } from '../services/admin-teams.service';
 import { TeamListResponseDto } from '@/teams/dtos/team-list-response.dto';
+import { AdminTeamsService } from '../services/admin-teams.service';
 
 @UseGuards(AuthGuard, AdminGuard)
 @Controller('admin/teams')
