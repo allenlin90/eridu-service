@@ -1,10 +1,12 @@
 @url = http://localhost:3000
 @user_email = {{$dotenv TEST_USER_EMAIL}}
 @user_password = {{$dotenv TEST_USER_PASSWORD}}
+@user_uid = 
 @business_uid = 
 @business_name = 
 @team_uid = 
 @team_name = 
+@role_uid = 
 
 // user login
 // @name login
@@ -66,3 +68,16 @@ Content-Type: application/json
 
 ###
 @team_uid = {{create_team_by_admin.response.body.id}}
+
+### 
+// create a membership by team and user
+// @name create_membership
+POST {{url}}/admin/memberships
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "user_id": "{{user_uid}}",
+  "team_id": "{{team_uid}}",
+  "role_id": "{{role_uid}}"
+}
