@@ -12,7 +12,7 @@ import { AdminGuard } from '@/guards/admin.guard';
 import { AuthGuard } from '@/guards/auth.guard';
 import { Serialize } from '@/interceptors/serialize.interceptor';
 
-import { CreateBusinessDto } from '../dtos/create-business.dto';
+import { CreateBusinessDto } from '../../businesses/dtos/create-business.dto';
 import { BusinessResponseDto } from '@/businesses/dtos/business-response.dto';
 import { BusinessListResponseDto } from '@/businesses/dtos/business-list-response.dto';
 import { BusinessSearchQueryDto } from '@/businesses/dtos/business-search-query.dto';

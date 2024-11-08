@@ -6,7 +6,7 @@ import { BusinessesModule } from '@/businesses/businesses.module';
 import { TeamsModule } from '@/teams/teams.module';
 import { MembershipsModule } from '@/memberships/memberships.module';
 
-import { AdminUsersController } from './controllers/admin-user.controller';
+import { AdminUsersController } from './controllers/admin-users.controller';
 import { AdminBusinessesController } from './controllers/admin-businesses.controller';
 import { AdminTeamsController } from './controllers/admin-teams.controller';
 import { AdminMembershipsController } from './controllers/admin-memberships.controller';
@@ -25,7 +25,12 @@ import { AdminMembershipsService } from './services/admin-memberships.service';
     TeamsModule,
     MembershipsModule,
   ],
-  providers: [AdminUsersService, AdminBusinessesService, AdminTeamsService, AdminMembershipsService],
+  providers: [
+    AdminUsersService,
+    AdminBusinessesService,
+    AdminTeamsService,
+    AdminMembershipsService,
+  ],
   controllers: [
     AdminUsersController,
     AdminBusinessesController,
