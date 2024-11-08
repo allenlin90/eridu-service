@@ -1,6 +1,10 @@
 @url = http://localhost:3000
 @user_email = {{$dotenv TEST_USER_EMAIL}}
 @user_password = {{$dotenv TEST_USER_PASSWORD}}
+@business_uid = erify
+@business_name = 
+@team_uid = 
+@team_name =
 
 // user login
 // @name login
@@ -25,3 +29,35 @@ Cookie: {{refresh_token_cookie}}
 
 ###
 @access_token = {{refreshToken.response.body.accessToken}}
+
+###
+// get list of business
+// @name get_businesses
+GET {{url}}/admin/businesses
+Authorization: Bearer {{access_token}}
+
+###
+// create a business
+// @name create_business
+POST {{url}}/admin/businesses
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{ "name": "{{business_name}}" }
+
+###
+@business_uid = {{create_business.response.body.id}}
+
+###
+// create a team under a business
+// @name create_team_by_business
+POST {{url}}/admin/businesses/{{business_uid}}/teams
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "name": "{{team_name}}"
+}
+
+###
+@team_uid = {{create_team_by_business.response.body.id}}
