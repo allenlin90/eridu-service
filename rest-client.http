@@ -58,12 +58,13 @@ Content-Type: application/json
 ###
 // create a team under a business
 // @name create_team_by_admin
-POST {{url}}/admin/businesses/{{business_uid}}/teams
+POST {{url}}/admin/teams
 Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 {
-  "name": "{{team_name}}"
+  "name": "{{team_name}}",
+  "business_id": "{{business_uid}}"
 }
 
 ###
