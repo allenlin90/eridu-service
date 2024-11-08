@@ -17,11 +17,14 @@ export enum PrismaErrorCodes {
 }
 
 export enum Entities {
+  BUSINESS = 'business',
   USER = 'user',
 }
 
 export enum Tables {
+  BUSINESSES = 'businesses',
   USERS = 'users',
 }
 
+export const BUSINESS_SEARCH_COLUMNS = ['name', 'uid'];
 export const USER_SEARCH_COLUMNS = ['email', 'username', 'uid'];
