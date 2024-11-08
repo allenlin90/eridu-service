@@ -10,6 +10,7 @@ export enum Prefixes {
   USER = 'user',
   RESET = 'reset',
   REFRESH = 'refresh',
+  TEAM = 'team',
 }
 
 export enum PrismaErrorCodes {

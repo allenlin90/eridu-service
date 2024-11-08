@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 
 import { AdminGuard } from '@/guards/admin.guard';
 import { AuthGuard } from '@/guards/auth.guard';
@@ -8,6 +16,7 @@ import { CreateBusinessDto } from '../dtos/create-business.dto';
 import { BusinessResponseDto } from '@/businesses/dtos/business-response.dto';
 import { BusinessListResponseDto } from '@/businesses/dtos/business-list-response.dto';
 import { BusinessSearchQueryDto } from '@/businesses/dtos/business-search-query.dto';
+import { CreateTeamDto } from '@/teams/dtos/create-team.dto';
 
 import { AdminBusinessesService } from '@/admin/services/admin-businesses.service';
 
@@ -26,5 +35,13 @@ export class AdminBusinessesController {
   @Post('/')
   async createBusiness(@Body() args: CreateBusinessDto) {
     return this.adminBusinessesService.createBusiness(args);
+  }
+
+  @Post(':business_id/teams')
+  async createTeam(
+    @Param('business_id') businessId: string,
+    @Body() args: CreateTeamDto,
+  ) {
+    return this.adminBusinessesService.createTeam(businessId, args);
   }
 }
