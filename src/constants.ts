@@ -20,12 +20,15 @@ export enum PrismaErrorCodes {
 export enum Entities {
   BUSINESS = 'business',
   USER = 'user',
+  TEAM = 'team',
 }
 
 export enum Tables {
   BUSINESSES = 'businesses',
   USERS = 'users',
+  TEAMS = 'teams',
 }
 
 export const BUSINESS_SEARCH_COLUMNS = ['name', 'uid'];
+export const TEAM_SEARCH_COLUMNS = ['name', 'uid'];
 export const USER_SEARCH_COLUMNS = ['email', 'username', 'uid'];

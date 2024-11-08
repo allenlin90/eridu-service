@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
+
 import { TeamRepository } from './teams.repository';
+import { TeamSearchQueryDto } from './dtos/team-search-query.dto';
 
 @Injectable()
 export class TeamsService {
@@ -7,5 +9,9 @@ export class TeamsService {
 
   get create() {
     return this.teamRepository.create;
+  }
+
+  async searchTeams(query: TeamSearchQueryDto) {
+    return this.teamRepository.searchTeams(query);
   }
 }
