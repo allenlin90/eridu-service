@@ -1,0 +1,27 @@
+@url = http://localhost:3000
+@user_email = {{$dotenv TEST_USER_EMAIL}}
+@user_password = {{$dotenv TEST_USER_PASSWORD}}
+
+// user login
+// @name login
+POST {{url}}/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "{{user_email}}",
+  "password": "{{user_password}}"
+}
+###
+@access_token = {{login.response.body.accessToken}}
+@refresh_token_cookie = {{login.response.headers.Set-Cookie}}
+
+###
+// refresh user token
+// @name refreshToken
+POST {{url}}/auth/refresh
+Authorization: Bearer {{access_token}}
+Cookie: {{refresh_token_cookie}}
+
+###
+@access_token = {{refreshToken.response.body.accessToken}}
