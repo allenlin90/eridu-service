@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 
 import { Prefixes } from '@/constants';
+import { CreateMembershipDto } from './dtos/create-membership.dto';
 import { NanoIdService } from '@/nano-id/nano-id.service';
 import { MembershipsRepository } from './memberships.repository';
-import { CreateMembershipDto } from './dtos/create-membership.dto';
 
 @Injectable()
 export class MembershipsService {
