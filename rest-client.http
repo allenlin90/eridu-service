@@ -7,6 +7,7 @@
 @team_uid = 
 @team_name = 
 @role_uid = 
+@role_name = 
 
 // user login
 // @name login
@@ -87,4 +88,16 @@ Content-Type: application/json
   "user_id": "{{user_uid}}",
   "team_id": "{{team_uid}}",
   "role_id": "{{role_uid}}"
+}
+
+###
+// create a role by admin
+// @name create_role
+POST {{url}}/admin/roles
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "name": "{{role_name}}",
+  "business_id": "{{business_uid}}"
 }
