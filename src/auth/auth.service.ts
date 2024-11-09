@@ -185,12 +185,12 @@ export class AuthService {
 
     const user = await this.usersService.findUnique({
       where: { id: userId },
-      include: { permissionsCache: true },
+      include: { permissionsCache: true, memberships: true },
     });
 
     let payload = user.permissionsCache ?? null;
 
-    if (!payload) {
+    if (!user.isAdmin || (!payload && user.memberships.length)) {
       payload = await this.usersService.createUserPermissionsCache({ userId });
     }
 
@@ -200,8 +200,8 @@ export class AuthService {
       sub: user.uid,
       email: user.email,
       username: user.username,
-      payload: payload.permissions,
-      ver: payload.version,
+      payload: payload?.permissions,
+      ver: payload?.version,
     });
   }
 
