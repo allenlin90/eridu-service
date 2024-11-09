@@ -14,6 +14,7 @@ import { BusinessesModule } from './businesses/businesses.module';
 import { TeamsModule } from './teams/teams.module';
 import { MembershipsModule } from './memberships/memberships.module';
 import { RolesModule } from './roles/roles.module';
+import { PermissionModule } from './permission/permission.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { RolesModule } from './roles/roles.module';
     TeamsModule,
     MembershipsModule,
     RolesModule,
+    PermissionModule,
   ],
   controllers: [AppController],
 })
