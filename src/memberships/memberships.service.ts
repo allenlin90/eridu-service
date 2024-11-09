@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 
 import { Prefixes } from '@/constants';
-import { CreateMembershipDto } from './dtos/create-membership.dto';
 import { NanoIdService } from '@/nano-id/nano-id.service';
 import { MembershipsRepository } from './memberships.repository';
+import { CreateMembershipDto } from './dtos/create-membership.dto';
+import { MembershipSearchQueryDto } from './dtos/membership-search.query.dto';
 
 @Injectable()
 export class MembershipsService {
@@ -11,6 +12,10 @@ export class MembershipsService {
     private nanoId: NanoIdService,
     private membershipsRepository: MembershipsRepository,
   ) {}
+
+  async searchMemberships(query: MembershipSearchQueryDto) {
+    return this.membershipsRepository.searchMemberships(query);
+  }
 
   async create(data: CreateMembershipDto) {
     const { team_id, role_id, user_id, type } = data;

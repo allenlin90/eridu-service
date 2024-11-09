@@ -22,14 +22,17 @@ export enum Entities {
   BUSINESS = 'business',
   USER = 'user',
   TEAM = 'team',
+  MEMBERSHIP = 'membership',
 }
 
 export enum Tables {
   BUSINESSES = 'businesses',
   USERS = 'users',
   TEAMS = 'teams',
+  MEMBERSHIPS = 'memberships',
 }
 
 export const BUSINESS_SEARCH_COLUMNS = ['name', 'uid'];
 export const TEAM_SEARCH_COLUMNS = ['name', 'uid'];
 export const USER_SEARCH_COLUMNS = ['email', 'username', 'uid'];
+export const MEMBERSHIP_SEARCH_COLUMNS = ['type', 'uid'];
