@@ -8,7 +8,9 @@ export class AdminMembershipsService {
   constructor(private membershipsService: MembershipsService) {}
 
   async create(data: CreateMembershipDto) {
-    return this.membershipsService.create(data);
+    return this.membershipsService.createMembershipWithPermissionCacheUpdate(
+      data,
+    );
   }
 
   async getMemberships(query: MembershipSearchQueryDto) {

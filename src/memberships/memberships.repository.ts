@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Membership } from '@prisma/client';
+import { Membership, PrismaClient } from '@prisma/client';
 import { PrismaService } from '@/prisma/prisma.service';
 
 import { Entities, MEMBERSHIP_SEARCH_COLUMNS, Tables } from '@/constants';
@@ -12,6 +12,10 @@ export class MembershipsRepository {
 
   get create() {
     return this.prisma.membership.create;
+  }
+
+  transaction(...args: Parameters<PrismaClient['$transaction']>) {
+    return this.prisma.$transaction(...args);
   }
 
   @PaginationSearch<Membership, MembershipSearchQueryDto>(
