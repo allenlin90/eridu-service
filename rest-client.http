@@ -111,9 +111,6 @@ Content-Type: application/json
 { "name": "{{business_name}}" }
 
 ###
-@business_uid = {{create_business_by_admin.response.body.id}}
-
-###
 // search teams by admin
 // @name search_teams_by_admin
 GET {{url}}/admin/teams
@@ -133,9 +130,6 @@ Content-Type: application/json
   "name": "{{team_name}}",
   "business_id": "{{business_uid}}"
 }
-
-###
-@team_uid = {{create_team_by_admin.response.body.id}}
 
 ###
 // search memberships by admin
