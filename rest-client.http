@@ -19,11 +19,11 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "name": "{{user_email}}",
+  "email": "{{user_email}}",
   "password": "{{user_password}}"
 }
 
-
+###
 // user login
 // @name login
 POST {{url}}/auth/login
