@@ -41,35 +41,6 @@ export class UsersService {
   async searchUsers(_query: UserSearchQueryDto) {}
 
   async createUserPermissionsCache({ userId }: { userId: number }) {
-    const user = await this.findUnique({
-      where: { id: userId },
-      include: {
-        memberships: {
-          include: {
-            team: { include: { business: true } },
-            role: true,
-          },
-        },
-      },
-    });
-
-    if (!user) return null;
-
-    const payload = this.permissionService.getUserPermissionsPayload(user);
-    const version = this.nanoIdService.generate();
-    const permissions = this.permissionService.generateUserPermissions(payload);
-
-    return this.upsertUserPermissionsCache({
-      where: { userId: user.id },
-      update: {
-        permissions,
-        version,
-      },
-      create: {
-        user: { connect: { id: user.id } },
-        version,
-        permissions,
-      },
-    });
+    return this.permissionService.upsertUserPermissionCache(userId);
   }
 }

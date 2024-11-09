@@ -1,12 +1,63 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { Role } from '@prisma/client';
 
+import type { DatabaseClient } from '@/types';
 import { UserExpandedPayload, UserPermissions } from './interfaces';
+import { PermissionRepository } from './permission.repository';
 import { UserPermissionsPayloadDto } from './dtos/user-permissions-payload.dto';
+import { NanoIdService } from '@/nano-id/nano-id.service';
 
 @Injectable()
 export class PermissionService {
-  getUserPermissionsPayload(user: UserExpandedPayload) {
+  constructor(
+    private nanoId: NanoIdService,
+    private permissionRepository: PermissionRepository,
+  ) {}
+
+  /**
+   * Updates or creates the user's permission cache based on their membership and role assignments.
+   * This function should be called whenever a user's membership or role assignments change.
+   *
+   * @param userId The ID of the user whose permission cache should be updated.
+   * @param client The database client to use for the transaction.
+   * @returns The updated or created permission cache entry.
+   */
+  async upsertUserPermissionCache(userId: number, client?: DatabaseClient) {
+    const dbClient = client || this.permissionRepository.client;
+
+    const user = await dbClient.user.findUnique({
+      where: { id: userId },
+      include: {
+        memberships: {
+          include: {
+            team: { include: { business: true } },
+            role: true,
+          },
+        },
+      },
+    });
+
+    if (!user) return null;
+
+    const payload = this.getUserPermissionsPayload(user);
+    const version = this.nanoId.generate();
+    const permissions = this.generateUserPermissions(payload);
+
+    return dbClient.permissionsCache.upsert({
+      where: { userId: user.id },
+      update: {
+        permissions,
+        version,
+      },
+      create: {
+        user: { connect: { id: user.id } },
+        version,
+        permissions,
+      },
+    });
+  }
+
+  private getUserPermissionsPayload(user: UserExpandedPayload) {
     const memberships = user.memberships ?? [];
     const roles = memberships.map((m) => m.role);
     const teams = memberships.map((m) => m.team);
@@ -15,7 +66,9 @@ export class PermissionService {
     return { user, memberships, roles, teams, businesses };
   }
 
-  generateUserPermissions(args: UserPermissionsPayloadDto): UserPermissions {
+  private generateUserPermissions(
+    args: UserPermissionsPayloadDto,
+  ): UserPermissions {
     // TODO: move argument validation to DTO
     this.validateUserPermissionsPayload(args);
 

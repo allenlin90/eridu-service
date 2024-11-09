@@ -49,35 +49,10 @@ export class MembershipsService {
         },
       });
 
-      const user = await tx.user.findUnique({
-        where: { id: membership.userId },
-        include: {
-          memberships: {
-            include: {
-              team: { include: { business: true } },
-              role: true,
-            },
-          },
-        },
-      });
-
-      const payload = this.permissionService.getUserPermissionsPayload(user);
-      const version = this.nanoId.generate();
-      const permissions =
-        this.permissionService.generateUserPermissions(payload);
-
-      await tx.permissionsCache.upsert({
-        where: { userId: user.id },
-        update: {
-          permissions,
-          version,
-        },
-        create: {
-          user: { connect: { id: user.id } },
-          version,
-          permissions,
-        },
-      });
+      await this.permissionService.upsertUserPermissionCache(
+        membership.userId,
+        tx,
+      );
 
       return membership;
     });
