@@ -108,10 +108,12 @@ export class UsersService {
       const business = businesses.find((b) => b.id === team.businessId);
 
       const scope = memberships.reduce((store, membership) => {
-        if (membership.teamId === team.id) {
-          return store.concat(rolesObj[membership.roleId].name);
-        }
-        return store;
+        if (membership.teamId !== team.id) return store;
+
+        const role = rolesObj[membership.roleId];
+        if (!role) return store;
+
+        return store.concat({ id: role.uid, name: role.name });
       }, []);
 
       store[team.uid] = {
@@ -120,6 +122,7 @@ export class UsersService {
         business_name: business.name,
         team_id: team.uid,
         team_name: team.name,
+        is_sub_team: !!team.parentTeamId,
         scope,
       };
 
