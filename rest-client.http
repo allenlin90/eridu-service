@@ -1,6 +1,9 @@
-@url = http://localhost:3000
+@port = {{$dotenv PORT}}
+@url = http://localhost:{{port}}
 @user_email = {{$dotenv TEST_USER_EMAIL}}
 @user_password = {{$dotenv TEST_USER_PASSWORD}}
+@reset_token=
+@user_new_password =
 @user_uid = 
 @business_uid = 
 @business_name = 
@@ -8,6 +11,18 @@
 @team_name = 
 @role_uid = 
 @role_name = 
+
+// user signup
+// @name signup
+POST {{url}}/auth/signup
+Accept: application/json
+Content-Type: application/json
+
+{
+  "name": "{{user_email}}",
+  "password": "{{user_password}}"
+}
+
 
 // user login
 // @name login
@@ -28,39 +43,90 @@ Content-Type: application/json
 // @name refreshToken
 POST {{url}}/auth/refresh
 Authorization: Bearer {{access_token}}
+Accept: application/
+Content-Type: application/json
 Cookie: {{refresh_token_cookie}}
 
 ###
 @access_token = {{refreshToken.response.body.accessToken}}
 
+### 
+// change user password
+PUT {{url}}/auth/change-password
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "{{user_email}}",
+  "oldPassword": "{{user_password}}",
+  "newPassword": "{{user_new_password}}",
+  "confirmNewPassword": "{{user_new_password}}"
+}
+
 ###
-// get list of business
+// reset user password
+POST {{url}}/auth/reset-password
+Accept: application/json
+Content-Type: application/json
+
+{
+  "password": "{{user_password}}",
+  "confirmPassword": "{{user_password}}",
+  "token": "{{reset_token}}"
+}
+
+###
+// get user info
+// @name get_user_info
+GET {{url}}/auth/me
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
+
+###
+// create reset token by admin
+// @name create_reset_token_by_admin
+POST {{url}}/admin/users/{{user_uid}}/reset-token
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
+
+###
+// search business by admin
 // @name get_businesses
 GET {{url}}/admin/businesses
 Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
 
 ###
-// create a business
-// @name create_business
+// create a business by admin
+// @name create_business_by_admin
 POST {{url}}/admin/businesses
 Authorization: Bearer {{access_token}}
+Accept: application/json
 Content-Type: application/json
 
 { "name": "{{business_name}}" }
 
 ###
-@business_uid = {{create_business.response.body.id}}
+@business_uid = {{create_business_by_admin.response.body.id}}
 
 ###
+// search teams by admin
+// @name search_teams_by_admin
 GET {{url}}/admin/teams
 Authorization: Bearer {{access_token}}
+Accept: application/json
 Content-Type: application/json
 
 ###
-// create a team under a business
+// create a team by admin
 // @name create_team_by_admin
 POST {{url}}/admin/teams
 Authorization: Bearer {{access_token}}
+Accept: application/json
 Content-Type: application/json
 
 {
@@ -72,16 +138,19 @@ Content-Type: application/json
 @team_uid = {{create_team_by_admin.response.body.id}}
 
 ###
-// get list of memberships
+// search memberships by admin
+// @name search_memberships_by_admin
 GET {{url}}/admin/memberships
 Authorization: Bearer {{access_token}}
+Accept: application/json
 Content-Type: application/json
 
 ### 
-// create a membership by team and user
-// @name create_membership
+// create a membership by admin
+// @name create_membership_by_admin
 POST {{url}}/admin/memberships
 Authorization: Bearer {{access_token}}
+Accept: application/json
 Content-Type: application/json
 
 {
@@ -91,16 +160,19 @@ Content-Type: application/json
 }
 
 ###
-// get list of roles by admin
+// search roles by admin
+// @name search_roles_by_admin
 GET {{url}}/admin/roles
 Authorization: Bearer {{access_token}}
+Accept: application/json
 Content-Type: application/json
 
 ###
 // create a role by admin
-// @name create_role
+// @name create_role_by_admin
 POST {{url}}/admin/roles
 Authorization: Bearer {{access_token}}
+Accept: application/json
 Content-Type: application/json
 
 {
