@@ -13,6 +13,7 @@ import { NanoIdModule } from './nano-id/nano-id.module';
 import { BusinessesModule } from './businesses/businesses.module';
 import { TeamsModule } from './teams/teams.module';
 import { MembershipsModule } from './memberships/memberships.module';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { MembershipsModule } from './memberships/memberships.module';
     BusinessesModule,
     TeamsModule,
     MembershipsModule,
+    RolesModule,
   ],
   controllers: [AppController],
 })

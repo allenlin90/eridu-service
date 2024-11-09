@@ -12,6 +12,7 @@ export enum Prefixes {
   REFRESH = 'refresh',
   TEAM = 'team',
   MEMBERSHIP = 'membership',
+  ROLE = 'role',
 }
 
 export enum PrismaErrorCodes {
@@ -23,6 +24,7 @@ export enum Entities {
   USER = 'user',
   TEAM = 'team',
   MEMBERSHIP = 'membership',
+  ROLE = 'role',
 }
 
 export enum Tables {
@@ -30,6 +32,7 @@ export enum Tables {
   USERS = 'users',
   TEAMS = 'teams',
   MEMBERSHIPS = 'memberships',
+  ROLES = 'role',
 }
 
 export const BUSINESS_SEARCH_COLUMNS = ['name', 'uid'];
