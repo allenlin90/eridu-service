@@ -25,6 +25,7 @@ export function PaginationSearch<T, K extends PaginationQueryDto>(
         );
       }
 
+      // TODO: mapping columns and fields in snake_case to camelCase according to schema
       const searchPaginator: PaginatorTypes.SearchPaginateFunction =
         this.prisma.applySearchPaginator();
 
