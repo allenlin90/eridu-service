@@ -39,6 +39,15 @@ Content-Type: application/json
 @refresh_token_cookie = {{login.response.headers.Set-Cookie}}
 
 ###
+// user logout
+// @name logout
+POST {{url}}/auth/logout
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
+Cookie: {{refresh_token_cookie}}
+
+###
 // refresh user token
 // @name refreshToken
 POST {{url}}/auth/refresh
