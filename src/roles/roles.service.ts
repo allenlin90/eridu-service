@@ -4,6 +4,7 @@ import { Prefixes } from '@/constants';
 import { NanoIdService } from '@/nano-id/nano-id.service';
 import { RolesRepository } from './roles.repository';
 import { CreateRoleDto } from './dtos/create-role.dto';
+import { RoleSearchQueryDto } from './dtos/role-search-query.dto';
 
 @Injectable()
 export class RolesService {
@@ -26,5 +27,9 @@ export class RolesService {
         business: { connect: { uid: data.business_id } },
       },
     });
+  }
+
+  async searchRoles(query: RoleSearchQueryDto) {
+    return this.rolesRepository.searchRoles(query);
   }
 }

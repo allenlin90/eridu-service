@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RolesService } from '@/roles/roles.service';
 import { CreateRoleDto } from '@/roles/dtos/create-role.dto';
+import { RoleSearchQueryDto } from '@/roles/dtos/role-search-query.dto';
 
 @Injectable()
 export class AdminRolesService {
@@ -8,5 +9,9 @@ export class AdminRolesService {
 
   async create(data: CreateRoleDto) {
     return this.rolesService.create(data);
+  }
+
+  async getRoles(query: RoleSearchQueryDto) {
+    return this.rolesService.searchRoles(query);
   }
 }

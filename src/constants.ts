@@ -39,3 +39,4 @@ export const BUSINESS_SEARCH_COLUMNS = ['name', 'uid'];
 export const TEAM_SEARCH_COLUMNS = ['name', 'uid'];
 export const USER_SEARCH_COLUMNS = ['email', 'username', 'uid'];
 export const MEMBERSHIP_SEARCH_COLUMNS = ['type', 'uid'];
+export const ROLE_SEARCH_COLUMNS = ['name', 'uid'];
