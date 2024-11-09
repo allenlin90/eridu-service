@@ -91,6 +91,12 @@ Content-Type: application/json
 }
 
 ###
+// get list of roles by admin
+GET {{url}}/admin/roles
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+###
 // create a role by admin
 // @name create_role
 POST {{url}}/admin/roles
