@@ -13,6 +13,10 @@ export class BusinessesService {
     private businessesRepository: BusinessesRepository,
   ) {}
 
+  get findUnique() {
+    return this.businessesRepository.findUnique;
+  }
+
   async getBusinesses(query: BusinessSearchQueryDto) {
     return this.businessesRepository.searchBusinesses(query);
   }

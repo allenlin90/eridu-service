@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { Prefixes } from '@/constants';
 import { CreateBusinessDto } from '@/businesses/dtos/create-business.dto';
@@ -10,9 +10,32 @@ import { BusinessesService } from '@/businesses/businesses.service';
 @Injectable()
 export class AdminBusinessesService {
   constructor(
-    private businessesService: BusinessesService,
     private nanoId: NanoIdService,
+    private businessesService: BusinessesService,
   ) {}
+
+  async findUnique(businessId: string) {
+    const business = await this.businessesService.findUnique({
+      where: { uid: businessId },
+      include: {
+        roles: true,
+        features: true,
+        teams: {
+          include: {
+            memberships: {
+              include: { user: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!business) {
+      throw new NotFoundException(`cannot find business by id: ${businessId}`);
+    }
+
+    return business;
+  }
 
   async getBusinesses(query: BusinessSearchQueryDto) {
     return this.businessesService.getBusinesses(query);

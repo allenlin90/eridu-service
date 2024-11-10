@@ -9,6 +9,10 @@ import { BusinessSearchQueryDto } from './dtos/business-search-query.dto';
 export class BusinessesRepository {
   constructor(private prisma: PrismaService) {}
 
+  get findUnique() {
+    return this.prisma.business.findUnique;
+  }
+
   get create() {
     return this.prisma.business.create;
   }
