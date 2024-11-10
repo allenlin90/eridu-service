@@ -110,6 +110,14 @@ Accept: application/json
 Content-Type: application/json
 
 ###
+// search a business by UID by admin
+// @name get_business_by_uid
+GET {{url}}/admin/businesses/{{business_uid}}
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
+
+###
 // create a business by admin
 // @name create_business_by_admin
 POST {{url}}/admin/businesses
