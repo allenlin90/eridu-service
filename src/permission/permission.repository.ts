@@ -11,4 +11,8 @@ export class PermissionRepository extends PrismaBaseRepository {
   get client() {
     return this.prisma.client;
   }
+
+  get deleteMany() {
+    return this.prisma.permissionsCache.deleteMany;
+  }
 }

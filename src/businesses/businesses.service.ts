@@ -3,6 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
 import { Prefixes } from '@/constants';
+import { PermissionService } from '@/permission/permission.service';
 import { BusinessesRepository } from './businesses.repository';
 import { BusinessSearchQueryDto } from './dtos/business-search-query.dto';
 
@@ -10,6 +11,7 @@ import { BusinessSearchQueryDto } from './dtos/business-search-query.dto';
 export class BusinessesService {
   constructor(
     private nanoIdService: NanoIdService,
+    private permissionService: PermissionService,
     private businessesRepository: BusinessesRepository,
   ) {}
 
@@ -52,8 +54,41 @@ export class BusinessesService {
     });
   }
 
-  get update() {
-    return this.businessesRepository.update;
+  async update(query: Prisma.BusinessUpdateArgs) {
+    return this.businessesRepository.transaction(async (tx) => {
+      const business = (await tx.business.update({
+        ...query,
+        include: {
+          teams: {
+            include: {
+              memberships: {
+                include: { user: true },
+              },
+            },
+          },
+        },
+      })) as Prisma.BusinessGetPayload<{
+        include: {
+          teams: {
+            include: {
+              memberships: {
+                include: { user: true };
+              };
+            };
+          };
+        };
+      }>;
+
+      const userIds = business.teams
+        .reduce((list, team) => list.concat(team.memberships), [])
+        .map((m) => m.userId);
+
+      await this.permissionService.deleteMany({
+        where: { userId: { in: userIds } },
+      });
+
+      return business;
+    });
   }
 
   async getBusinesses(query: BusinessSearchQueryDto) {

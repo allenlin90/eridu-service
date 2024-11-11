@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -21,6 +22,7 @@ import { BusinessListResponseDto } from '@/businesses/dtos/business-list-respons
 import { BusinessSearchQueryDto } from '@/businesses/dtos/business-search-query.dto';
 
 import { AdminBusinessesService } from '@/admin/services/admin-businesses.service';
+import { UpdateBusinessDto } from '@/businesses/dtos/update-business.dto';
 
 @UseGuards(AuthGuard, AdminGuard)
 @Controller('admin/businesses')
@@ -43,6 +45,15 @@ export class AdminBusinessesController {
   @Get('/:business_id')
   async getOneBusiness(@Param('business_id') businessId: string) {
     return this.adminBusinessesService.findUnique(businessId);
+  }
+
+  @Serialize(BusinessResponseDto)
+  @Put('/:business_id')
+  async updateOneBusiness(
+    @Param('business_id') businessId: string,
+    @Body() data: UpdateBusinessDto,
+  ) {
+    return this.adminBusinessesService.update(businessId, data);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

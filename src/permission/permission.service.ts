@@ -14,6 +14,10 @@ export class PermissionService {
     private permissionRepository: PermissionRepository,
   ) {}
 
+  get deleteMany() {
+    return this.permissionRepository.deleteMany;
+  }
+
   // TODO: refactor to run in decorator as a side-effect after updating related resources
   // can run in a worker through task queue and store in cache storage
   /**

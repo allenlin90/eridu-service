@@ -6,6 +6,7 @@ import { BusinessSearchQueryDto } from '@/businesses/dtos/business-search-query.
 
 import { NanoIdService } from '@/nano-id/nano-id.service';
 import { BusinessesService } from '@/businesses/businesses.service';
+import { UpdateBusinessDto } from '@/businesses/dtos/update-business.dto';
 
 @Injectable()
 export class AdminBusinessesService {
@@ -51,6 +52,13 @@ export class AdminBusinessesService {
     return this.businessesService.create({
       name: args.name,
       uid,
+    });
+  }
+
+  async update(businessId: string, data: UpdateBusinessDto) {
+    return this.businessesService.update({
+      where: { uid: businessId },
+      data,
     });
   }
 }
