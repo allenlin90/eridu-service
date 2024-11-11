@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { PaginationSearch } from '@/decorators/paginatoin-search.decorator';
-import { Business, Prisma } from '@prisma/client';
+import { Business, Prisma, PrismaClient } from '@prisma/client';
 import { Entities, Tables, BUSINESS_SEARCH_COLUMNS } from '@/constants';
+import { PrismaBaseRepository } from '@/prisma/prisma-base.repository';
 import { BusinessSearchQueryDto } from './dtos/business-search-query.dto';
 
 @Injectable()
-export class BusinessesRepository {
-  constructor(private prisma: PrismaService) {}
+export class BusinessesRepository extends PrismaBaseRepository {
+  constructor(private prisma: PrismaService) {
+    super(prisma);
+  }
 
   get findUnique() {
     return this.prisma.client.business.findUnique;

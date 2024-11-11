@@ -1,7 +1,8 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 
 export class PrismaExtendedClient extends PrismaClient {
-  extendedClient: ReturnType<typeof extendedClient>;
+  private extendedClient: ReturnType<typeof extendedClient>;
+
   constructor(...args: ConstructorParameters<typeof PrismaClient>) {
     super(...args);
   }
@@ -31,11 +32,13 @@ export const softDelete = Prisma.defineExtension({
         this: M,
         where: Prisma.Args<M, 'delete'>['where'],
       ): Promise<Prisma.Result<M, A, 'update'>> {
+        // TODO: refactor this, caused when using interactive transactions
+        const filters = where?.where ?? where;
         const context = Prisma.getExtensionContext(this);
 
         return (context as any).update({
           where: {
-            ...where,
+            ...filters,
             deletedAt: null,
           },
           data: {
@@ -56,11 +59,13 @@ export const softDeleteMany = Prisma.defineExtension({
         this: M,
         where: Prisma.Args<M, 'deleteMany'>['where'],
       ): Promise<Prisma.Result<M, A, 'updateMany'>> {
+        // TODO: refactor this, is caused when using interactive transactions
+        const filters = where?.where ?? where;
         const context = Prisma.getExtensionContext(this);
 
         return (context as any).updateMany({
           where: {
-            ...where,
+            ...filters,
             deletedAt: null,
           },
           data: {
