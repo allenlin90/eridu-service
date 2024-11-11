@@ -128,6 +128,14 @@ Content-Type: application/json
 { "name": "{{business_name}}" }
 
 ###
+// delete a business by admin
+// @name delete_business_by_admin
+DELETE {{url}}/admin/businesses/{{business_uid}}
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
+
+###
 // search teams by admin
 // @name search_teams_by_admin
 GET {{url}}/admin/teams
