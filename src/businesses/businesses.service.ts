@@ -60,7 +60,7 @@ export class BusinessesService {
     return this.businessesRepository.searchBusinesses(query);
   }
 
-  async createBusiness(data: Prisma.BusinessCreateInput) {
+  async create(data: Prisma.BusinessCreateInput) {
     let uid = data.uid;
 
     if (!uid) {

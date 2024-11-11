@@ -45,10 +45,10 @@ export class AdminBusinessesService {
     return this.businessesService.getBusinesses(query);
   }
 
-  async createBusiness(args: CreateBusinessDto) {
+  async create(args: CreateBusinessDto) {
     const uid = `${Prefixes.BUSINESS}_${this.nanoId.generate()}`;
 
-    return this.businessesService.createBusiness({
+    return this.businessesService.create({
       name: args.name,
       uid,
     });

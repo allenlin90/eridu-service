@@ -36,7 +36,7 @@ export class AdminBusinessesController {
   @Serialize(BusinessResponseDto)
   @Post('/')
   async createBusiness(@Body() args: CreateBusinessDto) {
-    return this.adminBusinessesService.createBusiness(args);
+    return this.adminBusinessesService.create(args);
   }
 
   @Serialize(BusinessResponseDto)
