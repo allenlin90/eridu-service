@@ -17,6 +17,10 @@ export class BusinessesService {
     return this.businessesRepository.findUnique;
   }
 
+  get delete() {
+    return this.businessesRepository.delete;
+  }
+
   async getBusinesses(query: BusinessSearchQueryDto) {
     return this.businessesRepository.searchBusinesses(query);
   }

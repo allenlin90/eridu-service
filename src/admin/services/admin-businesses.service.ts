@@ -37,6 +37,12 @@ export class AdminBusinessesService {
     return business;
   }
 
+  async delete(businessId: string) {
+    return this.businessesService.delete({
+      where: { uid: businessId },
+    });
+  }
+
   async getBusinesses(query: BusinessSearchQueryDto) {
     return this.businessesService.getBusinesses(query);
   }

@@ -17,6 +17,11 @@ export class BusinessesRepository {
     return this.prisma.business.create;
   }
 
+  // TODO: soft delete records
+  get delete() {
+    return this.prisma.business.delete;
+  }
+
   @PaginationSearch<Business, BusinessSearchQueryDto>(
     Entities.BUSINESS,
     Tables.BUSINESSES,

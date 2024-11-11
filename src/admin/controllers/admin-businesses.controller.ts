@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Query,
@@ -31,14 +34,20 @@ export class AdminBusinessesController {
   }
 
   @Serialize(BusinessResponseDto)
+  @Post('/')
+  async createBusiness(@Body() args: CreateBusinessDto) {
+    return this.adminBusinessesService.createBusiness(args);
+  }
+
+  @Serialize(BusinessResponseDto)
   @Get('/:business_id')
   async getOneBusiness(@Param('business_id') businessId: string) {
     return this.adminBusinessesService.findUnique(businessId);
   }
 
-  @Serialize(BusinessResponseDto)
-  @Post('/')
-  async createBusiness(@Body() args: CreateBusinessDto) {
-    return this.adminBusinessesService.createBusiness(args);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete('/:business_id')
+  async deleteOneBusiness(@Param('business_id') businessId: string) {
+    return this.adminBusinessesService.delete(businessId);
   }
 }
