@@ -5,17 +5,16 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { Entities, MEMBERSHIP_SEARCH_COLUMNS, Tables } from '@/constants';
 import { PaginationSearch } from '@/decorators/paginatoin-search.decorator';
 import { MembershipSearchQueryDto } from './dtos/membership-search.query.dto';
+import { PrismaBaseRepository } from '@/prisma/prisma-base.repository';
 
 @Injectable()
-export class MembershipsRepository {
-  constructor(private prisma: PrismaService) {}
+export class MembershipsRepository extends PrismaBaseRepository {
+  constructor(private prisma: PrismaService) {
+    super(prisma);
+  }
 
   get create() {
     return this.prisma.membership.create;
-  }
-
-  transaction(...args: Parameters<PrismaClient['$transaction']>) {
-    return this.prisma.$transaction(...args);
   }
 
   @PaginationSearch<Membership, MembershipSearchQueryDto>(
