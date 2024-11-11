@@ -21,6 +21,10 @@ export class BusinessesService {
     return this.businessesRepository.delete;
   }
 
+  get update() {
+    return this.businessesRepository.update;
+  }
+
   async getBusinesses(query: BusinessSearchQueryDto) {
     return this.businessesRepository.searchBusinesses(query);
   }
@@ -32,6 +36,10 @@ export class BusinessesService {
       uid = `${Prefixes.BUSINESS}_${this.nanoIdService.generate()}`;
     }
 
-    return this.businessesRepository.create({ data: { ...data, uid } });
+    return this.businessesRepository.create({
+      where: { name: data.name },
+      update: { deletedAt: null },
+      create: { ...data },
+    });
   }
 }

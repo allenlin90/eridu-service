@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { PaginationSearch } from '@/decorators/paginatoin-search.decorator';
-import { Business } from '@prisma/client';
+import { Business, Prisma } from '@prisma/client';
 import { Entities, Tables, BUSINESS_SEARCH_COLUMNS } from '@/constants';
 import { BusinessSearchQueryDto } from './dtos/business-search-query.dto';
 
@@ -10,16 +10,20 @@ export class BusinessesRepository {
   constructor(private prisma: PrismaService) {}
 
   get findUnique() {
-    return this.prisma.business.findUnique;
+    return this.prisma.client.business.findUnique;
   }
 
   get create() {
-    return this.prisma.business.create;
+    // TODO: update with soft delete to re-use created entity
+    return this.prisma.client.business.upsert;
   }
 
-  // TODO: soft delete records
+  get update() {
+    return this.prisma.client.business.update;
+  }
+
   get delete() {
-    return this.prisma.business.delete;
+    return this.prisma.client.business.delete;
   }
 
   @PaginationSearch<Business, BusinessSearchQueryDto>(

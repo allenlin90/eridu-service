@@ -38,9 +38,7 @@ export class AdminBusinessesService {
   }
 
   async delete(businessId: string) {
-    return this.businessesService.delete({
-      where: { uid: businessId },
-    });
+    return this.businessesService.delete({ uid: businessId });
   }
 
   async getBusinesses(query: BusinessSearchQueryDto) {

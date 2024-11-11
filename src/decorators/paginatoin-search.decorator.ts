@@ -20,7 +20,7 @@ export function PaginationSearch<T, K extends PaginationQueryDto>(
 
         return paginator(
           this.prisma[entityName],
-          { where: { ...filters } },
+          { where: { ...filters, deletedAt: null } },
           options,
         );
       }

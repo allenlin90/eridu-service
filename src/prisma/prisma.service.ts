@@ -9,14 +9,14 @@ import type {
   PaginatorTypes,
   searchPaginator as SearchPaginator,
 } from '@nodeteam/nestjs-prisma-pagination';
-import { PrismaClient } from '@prisma/client';
 import { ProviderKeys } from '@/constants';
+import { PrismaExtendedClient } from './prisma.extensions';
 
 const defaultPaginateOptions = { page: 1, perPage: 10 };
 
 @Injectable()
 export class PrismaService
-  extends PrismaClient
+  extends PrismaExtendedClient
   implements OnModuleInit, OnModuleDestroy
 {
   constructor(
