@@ -94,7 +94,6 @@ export class PermissionService {
       }, []);
 
       store[team.uid] = {
-        user_id: user.uid,
         business_id: business.uid,
         business_name: business.name,
         team_id: team.uid,
