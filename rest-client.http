@@ -230,3 +230,11 @@ Content-Type: application/json
 {
   "name": "{{role_name}}"
 }
+
+###
+// delete a role by admin
+// @name delete_role_by_admin
+DELETE {{url}}/admin/roles/{{role_uid}}
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
