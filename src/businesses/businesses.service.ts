@@ -26,7 +26,11 @@ export class BusinessesService {
           roles: true,
           features: true,
           teams: {
-            include: { memberships: true },
+            include: {
+              memberships: {
+                include: { user: true },
+              },
+            },
           },
         },
       });
@@ -47,6 +51,15 @@ export class BusinessesService {
       await tx.team.deleteMany({ where: { businessId } });
 
       await tx.membership.deleteMany({ where: { teamId: { in: teamIds } } });
+
+      // TODO: refactor to be done as side-effect e.g. decorator
+      // TODO: optimize this to prevent performance bottleneck
+      const userIds = business.teams
+        .reduce((list, team) => list.concat(team.memberships), [])
+        .map((m) => m.userId);
+      await tx.permissionsCache.deleteMany({
+        where: { userId: { in: userIds } },
+      });
 
       return business;
     });
@@ -77,10 +90,11 @@ export class BusinessesService {
         };
       }>;
 
+      // TODO: refactor to be done as side-effect e.g. decorator
+      // TODO: optimize this to prevent performance bottleneck
       const userIds = business.teams
         .reduce((list, team) => list.concat(team.memberships), [])
         .map((m) => m.userId);
-      // TODO: refactor to be done as side-effect e.g. decorator
       await tx.permissionsCache.deleteMany({
         where: { userId: { in: userIds } },
       });
