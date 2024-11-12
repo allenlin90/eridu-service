@@ -5,12 +5,12 @@
 @reset_token=
 @user_new_password =
 @user_uid = 
-@business_uid = 
+@business_uid = biz_m_sDy9e9e_cf1g2ikllIg
 @business_name = 
 @team_uid = 
 @team_name = 
-@role_uid = 
-@role_name = 
+@role_uid = role_8XqpitKx5XK5NXXsoIG8A
+@role_name = erify_1_manager
 
 // user signup
 // @name signup
@@ -218,3 +218,15 @@ GET {{url}}/admin/roles/{{role_uid}}
 Authorization: Bearer {{access_token}}
 Accept: application/json
 Content-Type: application/json
+
+###
+// update a role by admin
+// @name update_role_by_admin
+PUT {{url}}/admin/roles/{{role_uid}}
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "name": "{{role_name}}"
+}
