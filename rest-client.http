@@ -118,6 +118,18 @@ Accept: application/json
 Content-Type: application/json
 
 ###
+// search a business by UID by admin
+// @name update_business_by_admin
+PUT {{url}}/admin/businesses/{{business_uid}}
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "name": "erify_1"
+}
+
+###
 // create a business by admin
 // @name create_business_by_admin
 POST {{url}}/admin/businesses
