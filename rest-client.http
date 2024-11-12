@@ -210,3 +210,11 @@ Content-Type: application/json
   "name": "{{role_name}}",
   "business_id": "{{business_uid}}"
 }
+
+###
+// search a role by UID by admin
+// @name get_role_by_uid
+GET {{url}}/admin/roles/{{role_uid}}
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
