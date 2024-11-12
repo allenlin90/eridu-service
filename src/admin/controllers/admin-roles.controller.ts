@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -49,5 +52,11 @@ export class AdminRolesController {
     @Body() data: UpdateRoleDto,
   ) {
     return this.adminRolesService.update(roleId, data);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete('/:role_id')
+  async deleteOneROle(@Param('role_id') roleId: string) {
+    return this.adminRolesService.delete(roleId);
   }
 }

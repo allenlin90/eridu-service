@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
+import { Prisma } from '@prisma/client';
 import { Prefixes } from '@/constants';
 import { NanoIdService } from '@/nano-id/nano-id.service';
 import { RolesRepository } from './roles.repository';
@@ -46,13 +47,45 @@ export class RolesService {
         include: { memberships: true },
       });
 
-      const userIds = updatedRole.memberships.map((m) => m.userId);
       // TODO: refactor to be done as side-effect e.g. decorator
+      // TODO: optimize this to prevent performance bottleneck
+      const userIds = updatedRole.memberships.map((m) => m.userId);
       await tx.permissionsCache.deleteMany({
         where: { userId: { in: userIds } },
       });
 
       return updatedRole;
+    });
+  }
+
+  async delete(where: Prisma.RoleWhereUniqueInput) {
+    return this.rolesRepository.transaction(async (tx) => {
+      const role = await tx.role.findUnique({
+        where,
+        include: {
+          memberships: {
+            include: { user: true },
+          },
+        },
+      });
+
+      if (!role) {
+        throw new NotFoundException(`Role ID: ${where.uid} not found`);
+      }
+
+      await tx.role.delete({ where: { id: role.id } });
+
+      const membershipIds = role.memberships.map((m) => m.id);
+      await tx.membership.deleteMany({ where: { id: { in: membershipIds } } });
+
+      // TODO: refactor to be done as side-effect e.g. decorator
+      // TODO: optimize this to prevent performance bottleneck
+      const userIds = role.memberships.map((m) => m.userId);
+      await tx.permissionsCache.deleteMany({
+        where: { userId: { in: userIds } },
+      });
+
+      return role;
     });
   }
 }

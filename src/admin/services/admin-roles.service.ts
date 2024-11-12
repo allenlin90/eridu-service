@@ -32,4 +32,8 @@ export class AdminRolesService {
   async update(roleId: string, data: UpdateRoleDto) {
     return this.rolesService.update(roleId, data);
   }
+
+  async delete(roleId: string) {
+    return this.rolesService.delete({ uid: roleId });
+  }
 }
