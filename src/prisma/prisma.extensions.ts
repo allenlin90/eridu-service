@@ -62,15 +62,15 @@ async function deleteFunc<M, A>(
 export const softDeleteMany = Prisma.defineExtension({
   name: 'softDeleteMany',
   model: {
-    user: { delete: deleteMany },
-    refreshToken: { delete: deleteMany },
-    resetToken: { delete: deleteMany },
-    business: { delete: deleteMany },
-    feature: { delete: deleteMany },
-    userFeature: { delete: deleteMany },
-    role: { delete: deleteMany },
-    team: { delete: deleteMany },
-    membership: { delete: deleteMany },
+    user: { deleteMany },
+    refreshToken: { deleteMany },
+    resetToken: { deleteMany },
+    business: { deleteMany },
+    feature: { deleteMany },
+    userFeature: { deleteMany },
+    role: { deleteMany },
+    team: { deleteMany },
+    membership: { deleteMany },
   },
 });
 
