@@ -83,7 +83,7 @@ export class BusinessesService {
         .reduce((list, team) => list.concat(team.memberships), [])
         .map((m) => m.userId);
 
-      await this.permissionService.deleteMany({
+      await tx.permissionsCache.deleteMany({
         where: { userId: { in: userIds } },
       });
 
