@@ -3,7 +3,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
 import { Prefixes } from '@/constants';
-import { PermissionService } from '@/permission/permission.service';
 import { BusinessesRepository } from './businesses.repository';
 import { BusinessSearchQueryDto } from './dtos/business-search-query.dto';
 
@@ -11,7 +10,6 @@ import { BusinessSearchQueryDto } from './dtos/business-search-query.dto';
 export class BusinessesService {
   constructor(
     private nanoIdService: NanoIdService,
-    private permissionService: PermissionService,
     private businessesRepository: BusinessesRepository,
   ) {}
 
@@ -82,7 +80,7 @@ export class BusinessesService {
       const userIds = business.teams
         .reduce((list, team) => list.concat(team.memberships), [])
         .map((m) => m.userId);
-
+      // TODO: refactor to be done as side-effect e.g. decorator
       await tx.permissionsCache.deleteMany({
         where: { userId: { in: userIds } },
       });
