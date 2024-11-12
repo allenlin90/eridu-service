@@ -27,55 +27,71 @@ export const extendedClient = (client: PrismaClient) => {
 export const softDelete = Prisma.defineExtension({
   name: 'softDelete',
   model: {
-    $allModels: {
-      async delete<M, A>(
-        this: M,
-        where: Prisma.Args<M, 'delete'>['where'],
-      ): Promise<Prisma.Result<M, A, 'update'>> {
-        // TODO: refactor this, caused when using interactive transactions
-        const filters = where?.where ?? where;
-        const context = Prisma.getExtensionContext(this);
-
-        return (context as any).update({
-          where: {
-            ...filters,
-            deletedAt: null,
-          },
-          data: {
-            deletedAt: new Date(),
-          },
-        });
-      },
-    },
+    user: { delete: deleteFunc },
+    refreshToken: { delete: deleteFunc },
+    resetToken: { delete: deleteFunc },
+    business: { delete: deleteFunc },
+    feature: { delete: deleteFunc },
+    userFeature: { delete: deleteFunc },
+    role: { delete: deleteFunc },
+    team: { delete: deleteFunc },
+    membership: { delete: deleteFunc },
   },
 });
+
+async function deleteFunc<M, A>(
+  this: M,
+  where: Prisma.Args<M, 'delete'>['where'],
+): Promise<Prisma.Result<M, A, 'update'>> {
+  // TODO: refactor this, caused when using interactive transactions
+  const filters = where?.where ?? where;
+  const context = Prisma.getExtensionContext(this);
+
+  return (context as any).update({
+    where: {
+      ...filters,
+      deletedAt: null,
+    },
+    data: {
+      deletedAt: new Date(),
+    },
+  });
+}
 
 //extension for soft delete Many
 export const softDeleteMany = Prisma.defineExtension({
   name: 'softDeleteMany',
   model: {
-    $allModels: {
-      async deleteMany<M, A>(
-        this: M,
-        where: Prisma.Args<M, 'deleteMany'>['where'],
-      ): Promise<Prisma.Result<M, A, 'updateMany'>> {
-        // TODO: refactor this, is caused when using interactive transactions
-        const filters = where?.where ?? where;
-        const context = Prisma.getExtensionContext(this);
-
-        return (context as any).updateMany({
-          where: {
-            ...filters,
-            deletedAt: null,
-          },
-          data: {
-            deletedAt: new Date(),
-          },
-        });
-      },
-    },
+    user: { delete: deleteMany },
+    refreshToken: { delete: deleteMany },
+    resetToken: { delete: deleteMany },
+    business: { delete: deleteMany },
+    feature: { delete: deleteMany },
+    userFeature: { delete: deleteMany },
+    role: { delete: deleteMany },
+    team: { delete: deleteMany },
+    membership: { delete: deleteMany },
   },
 });
+
+async function deleteMany<M, A>(
+  this: M,
+  where: Prisma.Args<M, 'deleteMany'>['where'],
+): Promise<Prisma.Result<M, A, 'updateMany'>> {
+  // TODO: refactor this, is caused when using interactive transactions
+  const filters = where?.where ?? where;
+  const context = Prisma.getExtensionContext(this);
+
+  return (context as any).updateMany({
+    where: {
+      ...filters,
+      deletedAt: null,
+    },
+    data: {
+      deletedAt: new Date(),
+    },
+  });
+}
 
 //extension for filtering soft deleted rows from queries
 export const filterSoftDeleted = Prisma.defineExtension({
