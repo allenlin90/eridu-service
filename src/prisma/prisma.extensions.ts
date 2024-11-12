@@ -100,6 +100,9 @@ export const filterSoftDeleted = Prisma.defineExtension({
     $allModels: {
       async $allOperations({ model: _model, operation, args, query }) {
         if (
+          operation === 'upsert' ||
+          operation === 'update' ||
+          operation === 'updateMany' ||
           operation === 'findUnique' ||
           operation === 'findFirst' ||
           operation === 'findMany'
