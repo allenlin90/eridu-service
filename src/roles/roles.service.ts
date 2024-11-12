@@ -13,6 +13,10 @@ export class RolesService {
     private rolesRepository: RolesRepository,
   ) {}
 
+  get findUnique() {
+    return this.rolesRepository.findUnique;
+  }
+
   async create(data: CreateRoleDto) {
     let uid = data.uid;
 

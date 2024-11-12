@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 
 import { AuthGuard } from '@/guards/auth.guard';
 import { AdminGuard } from '@/guards/admin.guard';
@@ -22,7 +30,13 @@ export class AdminRolesController {
 
   @Serialize(RoleListResponseDto)
   @Get('/')
-  async getMemberships(@Query() query: RoleSearchQueryDto) {
+  async getRoles(@Query() query: RoleSearchQueryDto) {
     return this.adminRolesService.getRoles(query);
+  }
+
+  @Serialize(RoleResponseDto)
+  @Get('/:role_id')
+  async getRoleById(@Param('role_id') roleId: string) {
+    return this.adminRolesService.findUnique(roleId);
   }
 }
