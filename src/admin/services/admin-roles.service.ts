@@ -3,6 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { RolesService } from '@/roles/roles.service';
 import { CreateRoleDto } from '@/roles/dtos/create-role.dto';
 import { RoleSearchQueryDto } from '@/roles/dtos/role-search-query.dto';
+import { UpdateRoleDto } from '@/roles/dtos/update-role.dto';
 
 @Injectable()
 export class AdminRolesService {
@@ -26,5 +27,9 @@ export class AdminRolesService {
     }
 
     return role;
+  }
+
+  async update(roleId: string, data: UpdateRoleDto) {
+    return this.rolesService.update(roleId, data);
   }
 }
