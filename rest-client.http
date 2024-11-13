@@ -219,6 +219,14 @@ Content-Type: application/json
 }
 
 ###
+// search a membership by uid by admin
+// @name get_membership_by_uid
+GET {{url}}/admin/memberships/{{membership_id}}
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
+
+###
 // search roles by admin
 // @name search_roles_by_admin
 GET {{url}}/admin/roles
