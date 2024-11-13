@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 
 import { Prefixes } from '@/constants';
@@ -18,6 +18,22 @@ export class MembershipsService {
 
   get findUnique() {
     return this.membershipsRepository.findUnique;
+  }
+
+  async delete(where: Prisma.MembershipWhereUniqueInput) {
+    return this.membershipsRepository.transaction(async (tx) => {
+      const membership = await tx.membership.delete({ where });
+
+      if (!membership) {
+        throw new NotFoundException(`Membership ID: ${where.uid} not found`);
+      }
+
+      await tx.permissionsCache.delete({
+        where: { userId: membership.userId },
+      });
+
+      return membership;
+    });
   }
 
   async searchMemberships(query: MembershipSearchQueryDto) {

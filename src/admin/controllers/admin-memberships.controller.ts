@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Query,
@@ -11,9 +14,9 @@ import {
 import { AuthGuard } from '@/guards/auth.guard';
 import { AdminGuard } from '@/guards/admin.guard';
 import { Serialize } from '@/interceptors/serialize.interceptor';
+import { AdminMembershipsService } from '../services/admin-memberships.service';
 import { CreateMembershipDto } from '@/memberships/dtos/create-membership.dto';
 import { MembershipResponseDto } from '@/memberships/dtos/membership-response.dto';
-import { AdminMembershipsService } from '../services/admin-memberships.service';
 import { MembershipSearchQueryDto } from '@/memberships/dtos/membership-search.query.dto';
 import { MembershipListResponseDto } from '@/memberships/dtos/membership-list-response.dto';
 
@@ -38,5 +41,11 @@ export class AdminMembershipsController {
   @Get('/:membership_id')
   async findOneMembership(@Param('membership_id') membershipId: string) {
     return this.adminMembershipsService.findUnique(membershipId);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete('/:membership_id')
+  async updateOneMembership(@Param('membership_id') membershipId: string) {
+    return this.adminMembershipsService.delete(membershipId);
   }
 }

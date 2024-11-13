@@ -20,4 +20,8 @@ export class AdminMembershipsService {
   async findUnique(membershipId: string) {
     return this.membershipsService.findUnique({ where: { uid: membershipId } });
   }
+
+  async delete(membershipId: string) {
+    return this.membershipsService.delete({ uid: membershipId });
+  }
 }
