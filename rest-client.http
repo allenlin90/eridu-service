@@ -177,6 +177,14 @@ Accept: application/json
 Content-Type: application/json
 
 ###
+// delete a team by admin
+// @name delete_team_by_admin
+DELETE {{url}}/admin/teams/{{team_uid}}
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
+
+###
 // search memberships by admin
 // @name search_memberships_by_admin
 GET {{url}}/admin/memberships
