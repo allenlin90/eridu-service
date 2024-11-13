@@ -5,12 +5,15 @@
 @reset_token=
 @user_new_password =
 @user_uid = 
-@business_uid = biz_m_sDy9e9e_cf1g2ikllIg
+@business_uid = 
 @business_name = 
 @team_uid = 
 @team_name = 
-@role_uid = role_8XqpitKx5XK5NXXsoIG8A
-@role_name = erify_1_manager
+@role_uid = 
+@role_name = 
+@membership_id = 
+@membership_type = member
+@membership_role_id = 
 
 // user signup
 // @name signup
