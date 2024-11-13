@@ -177,6 +177,18 @@ Accept: application/json
 Content-Type: application/json
 
 ###
+// update a team by uid by admin
+// @name update_team_by_admin
+PUT {{url}}/admin/teams/{{team_uid}}
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "name": "{{team_name}}"
+}
+
+###
 // delete a team by admin
 // @name delete_team_by_admin
 DELETE {{url}}/admin/teams/{{team_uid}}
