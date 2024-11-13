@@ -30,17 +30,28 @@ export class MembershipsService {
   }
 
   async create(data: CreateMembershipDto) {
-    const { uid, team_id, role_id, user_id, type } =
-      this.createMembershipPayload(data);
+    return this.membershipsRepository.transaction(async (tx) => {
+      const { uid, team_id, role_id, user_id, type } =
+        this.createMembershipPayload(data);
 
-    return this.membershipsRepository.create({
-      data: {
-        uid,
-        type: type || 'member',
-        user: { connect: { uid: user_id } },
-        role: { connect: { uid: role_id } },
-        team: { connect: { uid: team_id } },
-      },
+      const membership = await tx.membership.create({
+        data: {
+          uid,
+          type: type || 'member',
+          user: { connect: { uid: user_id } },
+          role: { connect: { uid: role_id } },
+          team: { connect: { uid: team_id } },
+        },
+        include: { team: true, role: true },
+      });
+
+      if (membership.team.businessId !== membership.role.businessId) {
+        throw new ConflictException(
+          'team and role must be in the same business',
+        );
+      }
+
+      return membership;
     });
   }
 
