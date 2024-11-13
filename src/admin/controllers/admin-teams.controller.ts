@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Query,
@@ -38,5 +41,11 @@ export class AdminTeamsController {
   @Get('/:team_id')
   async getOneTeam(@Param('team_id') teamId: string) {
     return this.adminTeamsService.findUnique(teamId);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete('/:team_id')
+  async deleteOneBusiness(@Param('team_id') teamId: string) {
+    return this.adminTeamsService.delete(teamId);
   }
 }

@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
+import { Prisma } from '@prisma/client';
 import { TeamRepository } from './teams.repository';
 import { TeamSearchQueryDto } from './dtos/team-search-query.dto';
 
@@ -17,5 +18,37 @@ export class TeamsService {
 
   async searchTeams(query: TeamSearchQueryDto) {
     return this.teamRepository.searchTeams(query);
+  }
+
+  async delete(where: Prisma.TeamWhereUniqueInput) {
+    return this.teamRepository.transaction(async (tx) => {
+      const team = await tx.team.findUnique({
+        where,
+        include: {
+          memberships: {
+            include: { user: true },
+          },
+        },
+      });
+
+      if (!team) {
+        throw new NotFoundException(`team ID: ${where.uid} not found`);
+      }
+
+      await tx.team.deleteMany({
+        where: { OR: [{ id: team.id }, { parentTeamId: team.id }] },
+      });
+
+      await tx.membership.deleteMany({ where: { teamId: team.id } });
+
+      // TODO: refactor to be done as side-effect e.g. decorator
+      // TODO: optimize this to prevent performance bottleneck
+      const userIds = team.memberships.map((m) => m.userId);
+      await tx.permissionsCache.deleteMany({
+        where: { userId: { in: userIds } },
+      });
+
+      return team;
+    });
   }
 }

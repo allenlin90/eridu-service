@@ -38,4 +38,8 @@ export class AdminTeamsService {
   async findUnique(teamId: string) {
     return this.teamsService.findUnique({ where: { uid: teamId } });
   }
+
+  async delete(teamId: string) {
+    return this.teamsService.delete({ uid: teamId });
+  }
 }
