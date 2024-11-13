@@ -227,6 +227,14 @@ Accept: application/json
 Content-Type: application/json
 
 ###
+// delete a membership by admin
+// @name delete_membership_by_admin
+DELETE {{url}}/admin/memberships/{{membership_id}}
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
+
+###
 // search roles by admin
 // @name search_roles_by_admin
 GET {{url}}/admin/roles
