@@ -25,9 +25,13 @@ export class TeamsService {
       const team = await tx.team.findUnique({
         where,
         include: {
-          memberships: {
-            include: { user: true },
+          // TODO: optimize sub-team recursive deletion
+          subTeams: {
+            include: {
+              memberships: true,
+            },
           },
+          memberships: true,
         },
       });
 
@@ -43,9 +47,13 @@ export class TeamsService {
 
       // TODO: refactor to be done as side-effect e.g. decorator
       // TODO: optimize this to prevent performance bottleneck
+      const subTeamUserIds = team.subTeams.reduce(
+        (list, t) => list.concat(t.memberships.map((m) => m.userId)),
+        [],
+      );
       const userIds = team.memberships.map((m) => m.userId);
       await tx.permissionsCache.deleteMany({
-        where: { userId: { in: userIds } },
+        where: { userId: { in: subTeamUserIds.concat(userIds) } },
       });
 
       return team;
