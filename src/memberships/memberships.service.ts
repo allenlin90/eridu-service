@@ -83,7 +83,14 @@ export class MembershipsService {
           role: { connect: { uid: role_id } },
           team: { connect: { uid: team_id } },
         },
+        include: { team: true, role: true },
       });
+
+      if (membership.team.businessId !== membership.role.businessId) {
+        throw new ConflictException(
+          'team and role must be in the same business',
+        );
+      }
 
       await this.permissionService.upsertUserPermissionCache(
         membership.userId,
