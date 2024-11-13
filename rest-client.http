@@ -169,6 +169,14 @@ Content-Type: application/json
 }
 
 ###
+// search a team by uid by admin
+// @name get_team_by_uid
+GET {{url}}/admin/teams/{{team_uid}}
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
+
+###
 // search memberships by admin
 // @name search_memberships_by_admin
 GET {{url}}/admin/memberships
