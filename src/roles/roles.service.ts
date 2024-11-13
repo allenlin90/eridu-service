@@ -62,11 +62,7 @@ export class RolesService {
     return this.rolesRepository.transaction(async (tx) => {
       const role = await tx.role.findUnique({
         where,
-        include: {
-          memberships: {
-            include: { user: true },
-          },
-        },
+        include: { memberships: true },
       });
 
       if (!role) {
