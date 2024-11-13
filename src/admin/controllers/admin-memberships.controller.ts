@@ -45,7 +45,7 @@ export class AdminMembershipsController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('/:membership_id')
-  async updateOneMembership(@Param('membership_id') membershipId: string) {
+  async deleteOneMembership(@Param('membership_id') membershipId: string) {
     return this.adminMembershipsService.delete(membershipId);
   }
 }
