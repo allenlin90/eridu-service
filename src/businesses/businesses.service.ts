@@ -1,6 +1,6 @@
 import { NanoIdService } from '@/nano-id/nano-id.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Membership, Prisma } from '@prisma/client';
 
 import { Prefixes } from '@/constants';
 import { BusinessesRepository } from './businesses.repository';
@@ -27,9 +27,13 @@ export class BusinessesService {
           features: true,
           teams: {
             include: {
-              memberships: {
-                include: { user: true },
+              // TODO: optimize with recursive batch record cleanup
+              subTeams: {
+                include: {
+                  memberships: true,
+                },
               },
+              memberships: true,
             },
           },
         },
@@ -54,11 +58,17 @@ export class BusinessesService {
 
       // TODO: refactor to be done as side-effect e.g. decorator
       // TODO: optimize this to prevent performance bottleneck
+      const subTeams = business.teams.reduce<
+        Prisma.TeamGetPayload<{ include: { memberships: true } }>[]
+      >((list, t) => list.concat(t.subTeams), []);
+      const subTeamMemberships = subTeams
+        .reduce<Membership[]>((list, st) => list.concat(st.memberships), [])
+        .map((m) => m.userId);
       const userIds = business.teams
         .reduce((list, team) => list.concat(team.memberships), [])
         .map((m) => m.userId);
       await tx.permissionsCache.deleteMany({
-        where: { userId: { in: userIds } },
+        where: { userId: { in: subTeamMemberships.concat(userIds) } },
       });
 
       return business;
@@ -72,9 +82,7 @@ export class BusinessesService {
         include: {
           teams: {
             include: {
-              memberships: {
-                include: { user: true },
-              },
+              memberships: true,
             },
           },
         },
@@ -82,9 +90,7 @@ export class BusinessesService {
         include: {
           teams: {
             include: {
-              memberships: {
-                include: { user: true };
-              };
+              memberships: true;
             };
           };
         };
