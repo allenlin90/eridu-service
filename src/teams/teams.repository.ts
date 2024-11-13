@@ -4,14 +4,21 @@ import { PrismaService } from '@/prisma/prisma.service';
 
 import { Entities, Tables, TEAM_SEARCH_COLUMNS } from '@/constants';
 import { PaginationSearch } from '@/decorators/paginatoin-search.decorator';
+import { PrismaBaseRepository } from '@/prisma/prisma-base.repository';
 import { TeamSearchQueryDto } from './dtos/team-search-query.dto';
 
 @Injectable()
-export class TeamRepository {
-  constructor(private prisma: PrismaService) {}
+export class TeamRepository extends PrismaBaseRepository {
+  constructor(private prisma: PrismaService) {
+    super(prisma);
+  }
 
   get create() {
-    return this.prisma.team.create;
+    return this.prisma.client.team.create;
+  }
+
+  get findUnique() {
+    return this.prisma.client.team.findUnique;
   }
 
   @PaginationSearch<Team, TeamSearchQueryDto>(

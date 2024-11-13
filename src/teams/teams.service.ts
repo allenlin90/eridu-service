@@ -11,6 +11,10 @@ export class TeamsService {
     return this.teamRepository.create;
   }
 
+  get findUnique() {
+    return this.teamRepository.findUnique;
+  }
+
   async searchTeams(query: TeamSearchQueryDto) {
     return this.teamRepository.searchTeams(query);
   }

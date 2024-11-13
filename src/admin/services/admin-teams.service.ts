@@ -34,4 +34,8 @@ export class AdminTeamsService {
       },
     });
   }
+
+  async findUnique(teamId: string) {
+    return this.teamsService.findUnique({ where: { uid: teamId } });
+  }
 }

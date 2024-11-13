@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 
 import { AuthGuard } from '@/guards/auth.guard';
 import { AdminGuard } from '@/guards/admin.guard';
@@ -24,5 +32,11 @@ export class AdminTeamsController {
   @Post('/')
   async createTeam(@Body() data: CreateTeamDto) {
     return this.adminTeamsService.create(data);
+  }
+
+  @Serialize(TeamResponseDto)
+  @Get('/:team_id')
+  async getOneTeam(@Param('team_id') teamId: string) {
+    return this.adminTeamsService.findUnique(teamId);
   }
 }
