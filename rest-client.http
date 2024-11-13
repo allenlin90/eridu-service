@@ -227,6 +227,19 @@ Accept: application/json
 Content-Type: application/json
 
 ###
+// update a membership by uid by admin
+// @name update_membership_by_admin
+PUT {{url}}/admin/memberships/{{membership_id}}
+Authorization: Bearer {{access_token}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "type": "{{membership_type}}",
+  "role_id": "{{membership_role_id}}"
+}
+
+###
 // delete a membership by admin
 // @name delete_membership_by_admin
 DELETE {{url}}/admin/memberships/{{membership_id}}
