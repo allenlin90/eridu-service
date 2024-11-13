@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -14,11 +15,12 @@ import {
 import { AuthGuard } from '@/guards/auth.guard';
 import { AdminGuard } from '@/guards/admin.guard';
 import { Serialize } from '@/interceptors/serialize.interceptor';
+import { AdminTeamsService } from '../services/admin-teams.service';
 import { CreateTeamDto } from '@/teams/dtos/create-team.dto';
 import { TeamSearchQueryDto } from '@/teams/dtos/team-search-query.dto';
 import { TeamListResponseDto } from '@/teams/dtos/team-list-response.dto';
 import { TeamResponseDto } from '@/teams/dtos/team-response.dto';
-import { AdminTeamsService } from '../services/admin-teams.service';
+import { UpdateTeamDto } from '@/teams/dtos/update-team.dto';
 
 @UseGuards(AuthGuard, AdminGuard)
 @Controller('admin/teams')
@@ -41,6 +43,15 @@ export class AdminTeamsController {
   @Get('/:team_id')
   async getOneTeam(@Param('team_id') teamId: string) {
     return this.adminTeamsService.findUnique(teamId);
+  }
+
+  @Serialize(TeamResponseDto)
+  @Put('/:team_id')
+  async updateOneBusiness(
+    @Param('team_id') teamId: string,
+    @Body() data: UpdateTeamDto,
+  ) {
+    return this.adminTeamsService.update(teamId, data);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

@@ -20,6 +20,24 @@ export class TeamsService {
     return this.teamRepository.searchTeams(query);
   }
 
+  async update(query: Prisma.TeamUpdateArgs) {
+    return this.teamRepository.transaction(async (tx) => {
+      const team = await tx.team.update({
+        ...query,
+        include: { memberships: true },
+      });
+
+      // TODO: refactor to be done as side-effect e.g. decorator
+      // TODO: optimize this to prevent performance bottleneck
+      const userIds = team.memberships.map((m) => m.userId);
+      await tx.permissionsCache.deleteMany({
+        where: { userId: { in: userIds } },
+      });
+
+      return team;
+    });
+  }
+
   async delete(where: Prisma.TeamWhereUniqueInput) {
     return this.teamRepository.transaction(async (tx) => {
       const team = await tx.team.findUnique({

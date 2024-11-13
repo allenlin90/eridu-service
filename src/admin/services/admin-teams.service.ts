@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 
 import { Prefixes } from '@/constants';
+import { NanoIdService } from '@/nano-id/nano-id.service';
+import { TeamsService } from '@/teams/teams.service';
 import { TeamSearchQueryDto } from '@/teams/dtos/team-search-query.dto';
 import { CreateTeamDto } from '@/teams/dtos/create-team.dto';
-import { TeamsService } from '@/teams/teams.service';
-import { NanoIdService } from '@/nano-id/nano-id.service';
+import { UpdateTeamDto } from '@/teams/dtos/update-team.dto';
 
 @Injectable()
 export class AdminTeamsService {
@@ -37,6 +38,10 @@ export class AdminTeamsService {
 
   async findUnique(teamId: string) {
     return this.teamsService.findUnique({ where: { uid: teamId } });
+  }
+
+  async update(teamId: string, data: UpdateTeamDto) {
+    return this.teamsService.update({ where: { uid: teamId }, data });
   }
 
   async delete(teamId: string) {
