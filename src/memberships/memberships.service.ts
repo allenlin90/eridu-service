@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 
 import { Prefixes } from '@/constants';
@@ -7,6 +11,7 @@ import { PermissionService } from '@/permission/permission.service';
 import { MembershipsRepository } from './memberships.repository';
 import { CreateMembershipDto } from './dtos/create-membership.dto';
 import { MembershipSearchQueryDto } from './dtos/membership-search.query.dto';
+import { UpdateMembershipDto } from './dtos/update-membership.dto';
 
 @Injectable()
 export class MembershipsService {
@@ -56,10 +61,24 @@ export class MembershipsService {
   }
 
   async updateMembershipWithPermissionCacheUpdate(
-    query: Prisma.MembershipUpdateArgs,
+    membershipId: string,
+    data: UpdateMembershipDto,
   ) {
     return this.membershipsRepository.transaction(async (tx) => {
-      const membership = await tx.membership.update(query);
+      const membership = await tx.membership.update({
+        where: { uid: membershipId },
+        data: {
+          ...(data.type && { type: data.type }),
+          ...(data.role_id && { role: { connect: { uid: data.role_id } } }),
+        },
+        include: { team: true, role: true },
+      });
+
+      if (membership.team.businessId !== membership.role.businessId) {
+        throw new ConflictException(
+          'team and role must be in the same business',
+        );
+      }
 
       await this.permissionService.upsertUserPermissionCache(
         membership.userId,

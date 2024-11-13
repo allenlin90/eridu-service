@@ -23,13 +23,10 @@ export class AdminMembershipsService {
   }
 
   async update(membershipId: string, data: UpdateMembershipDto) {
-    return this.membershipsService.updateMembershipWithPermissionCacheUpdate({
-      where: { uid: membershipId },
-      data: {
-        ...(data.type && { type: data.type }),
-        ...(data.role_id && { role: { connect: { uid: data.role_id } } }),
-      },
-    });
+    return this.membershipsService.updateMembershipWithPermissionCacheUpdate(
+      membershipId,
+      data,
+    );
   }
 
   async delete(membershipId: string) {
