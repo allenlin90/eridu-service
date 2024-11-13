@@ -20,22 +20,6 @@ export class MembershipsService {
     return this.membershipsRepository.findUnique;
   }
 
-  async delete(where: Prisma.MembershipWhereUniqueInput) {
-    return this.membershipsRepository.transaction(async (tx) => {
-      const membership = await tx.membership.delete({ where });
-
-      if (!membership) {
-        throw new NotFoundException(`Membership ID: ${where.uid} not found`);
-      }
-
-      await tx.permissionsCache.delete({
-        where: { userId: membership.userId },
-      });
-
-      return membership;
-    });
-  }
-
   async searchMemberships(query: MembershipSearchQueryDto) {
     return this.membershipsRepository.searchMemberships(query);
   }
@@ -52,6 +36,37 @@ export class MembershipsService {
         role: { connect: { uid: role_id } },
         team: { connect: { uid: team_id } },
       },
+    });
+  }
+
+  async delete(where: Prisma.MembershipWhereUniqueInput) {
+    return this.membershipsRepository.transaction(async (tx) => {
+      const membership = await tx.membership.delete({ where });
+
+      if (!membership) {
+        throw new NotFoundException(`Membership ID: ${where.uid} not found`);
+      }
+
+      await tx.permissionsCache.delete({
+        where: { userId: membership.userId },
+      });
+
+      return membership;
+    });
+  }
+
+  async updateMembershipWithPermissionCacheUpdate(
+    query: Prisma.MembershipUpdateArgs,
+  ) {
+    return this.membershipsRepository.transaction(async (tx) => {
+      const membership = await tx.membership.update(query);
+
+      await this.permissionService.upsertUserPermissionCache(
+        membership.userId,
+        tx,
+      );
+
+      return membership;
     });
   }
 

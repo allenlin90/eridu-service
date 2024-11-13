@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { MembershipsService } from '@/memberships/memberships.service';
 import { CreateMembershipDto } from '@/memberships/dtos/create-membership.dto';
 import { MembershipSearchQueryDto } from '@/memberships/dtos/membership-search.query.dto';
+import { UpdateMembershipDto } from '@/memberships/dtos/update-membership.dto';
 
 @Injectable()
 export class AdminMembershipsService {
@@ -19,6 +20,16 @@ export class AdminMembershipsService {
 
   async findUnique(membershipId: string) {
     return this.membershipsService.findUnique({ where: { uid: membershipId } });
+  }
+
+  async update(membershipId: string, data: UpdateMembershipDto) {
+    return this.membershipsService.updateMembershipWithPermissionCacheUpdate({
+      where: { uid: membershipId },
+      data: {
+        ...(data.type && { type: data.type }),
+        ...(data.role_id && { role: { connect: { uid: data.role_id } } }),
+      },
+    });
   }
 
   async delete(membershipId: string) {

@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { CreateMembershipDto } from '@/memberships/dtos/create-membership.dto';
 import { MembershipResponseDto } from '@/memberships/dtos/membership-response.dto';
 import { MembershipSearchQueryDto } from '@/memberships/dtos/membership-search.query.dto';
 import { MembershipListResponseDto } from '@/memberships/dtos/membership-list-response.dto';
+import { UpdateMembershipDto } from '@/memberships/dtos/update-membership.dto';
 
 @UseGuards(AuthGuard, AdminGuard)
 @Controller('admin/memberships')
@@ -41,6 +43,15 @@ export class AdminMembershipsController {
   @Get('/:membership_id')
   async findOneMembership(@Param('membership_id') membershipId: string) {
     return this.adminMembershipsService.findUnique(membershipId);
+  }
+
+  @Serialize(MembershipResponseDto)
+  @Put('/:membership_id')
+  async updateOneMembership(
+    @Param('membership_id') membershipId: string,
+    @Body() data: UpdateMembershipDto,
+  ) {
+    return this.adminMembershipsService.update(membershipId, data);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
