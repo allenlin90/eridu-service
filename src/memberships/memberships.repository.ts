@@ -14,7 +14,11 @@ export class MembershipsRepository extends PrismaBaseRepository {
   }
 
   get create() {
-    return this.prisma.membership.create;
+    return this.prisma.client.membership.create;
+  }
+
+  get findUnique() {
+    return this.prisma.client.membership.findUnique;
   }
 
   @PaginationSearch<Membership, MembershipSearchQueryDto>(

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 
 import { AuthGuard } from '@/guards/auth.guard';
 import { AdminGuard } from '@/guards/admin.guard';
@@ -24,5 +32,11 @@ export class AdminMembershipsController {
   @Get('/')
   async getMemberships(@Query() query: MembershipSearchQueryDto) {
     return this.adminMembershipsService.getMemberships(query);
+  }
+
+  @Serialize(MembershipResponseDto)
+  @Get('/:membership_id')
+  async findOneMembership(@Param('membership_id') membershipId: string) {
+    return this.adminMembershipsService.findUnique(membershipId);
   }
 }

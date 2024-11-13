@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 
 import { Prefixes } from '@/constants';
 import { NanoIdService } from '@/nano-id/nano-id.service';
@@ -14,6 +15,10 @@ export class MembershipsService {
     private permissionService: PermissionService,
     private membershipsRepository: MembershipsRepository,
   ) {}
+
+  get findUnique() {
+    return this.membershipsRepository.findUnique;
+  }
 
   async searchMemberships(query: MembershipSearchQueryDto) {
     return this.membershipsRepository.searchMemberships(query);

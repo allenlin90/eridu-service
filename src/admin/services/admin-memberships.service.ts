@@ -16,4 +16,8 @@ export class AdminMembershipsService {
   async getMemberships(query: MembershipSearchQueryDto) {
     return this.membershipsService.searchMemberships(query);
   }
+
+  async findUnique(membershipId: string) {
+    return this.membershipsService.findUnique({ where: { uid: membershipId } });
+  }
 }
